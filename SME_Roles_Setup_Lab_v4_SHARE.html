@@ -1,0 +1,3022 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SME Manager — AI Co-worker Setup Lab v4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FCFCFD; --light:#FFFFFF; --offwhite:#F5F5F7;
+  --red:#E5322B; --red-2:#C42018; --red-ink:#A6140D;
+  --purple:#E5322B; --gold:#C42018; --pink:#E5322B;
+  --grad:linear-gradient(100deg,#F0413A 0%,#D11C13 100%);
+  --grad-soft:linear-gradient(120deg,rgba(229,50,43,.09),rgba(196,32,24,.05));
+  --ink:#19191D; --muted:#8A8A92; --muted-2:#54545C; --line:rgba(20,20,30,.085); --line-2:#DBDBE1;
+  --card:#FFFFFF; --card2:#F5F5F8; --chip:#F0F0F4; --term:#FBFBFC; --code-ink:#27272E;
+  --ok:#E5322B;
+  --shadow-sm:0 1px 2px rgba(20,20,40,.04); --shadow-md:0 8px 24px -14px rgba(20,20,40,.18);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:'Sarabun',Tahoma,sans-serif; font-weight:400; line-height:1.7;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+body::before{
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(960px 540px at 88% -10%, rgba(229,50,43,.07), transparent 62%),
+    radial-gradient(720px 480px at 4% 2%, rgba(229,50,43,.035), transparent 58%);
+}
+.thai-h{font-family:'Kanit',sans-serif;}
+.en-h{font-family:'Poppins',sans-serif;}
+.mono{font-family:'JetBrains Mono',monospace;}
+
+/* ---------- TOP BAR ---------- */
+.topbar{
+  position:sticky; top:0; z-index:50;
+  background:rgba(255,255,255,.82); backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--line);
+}
+.topbar-inner{max-width:1400px; margin:0 auto; padding:14px 44px; display:flex; align-items:center; gap:18px; flex-wrap:wrap}
+.brand{display:flex; align-items:center; gap:11px}
+.brand .mark{width:30px;height:30px;border-radius:9px;background:var(--grad);box-shadow:0 4px 14px rgba(229,50,43,.3); position:relative; flex:none; display:flex; align-items:center; justify-content:center; font-size:15px}
+.brand b{font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; letter-spacing:.2px}
+.brand span{color:var(--muted); font-size:12.5px; font-family:'Kanit',sans-serif}
+.topbar .spacer{flex:1}
+
+/* role selector */
+.role-pick{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.role-pick .rp-label{font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:1.2px; text-transform:uppercase; color:var(--muted)}
+.role-pick select{
+  font-family:'Kanit',sans-serif; font-size:13.5px; font-weight:500; color:var(--ink);
+  background:var(--card); border:1px solid var(--line-2); border-radius:10px; padding:8px 14px; cursor:pointer; transition:.16s;
+}
+.role-pick select:hover{border-color:var(--red)}
+
+/* mode toggle */
+.os-toggle{display:flex; background:var(--chip); border:1px solid var(--line); border-radius:11px; padding:4px; gap:3px}
+.os-toggle button{
+  font-family:'Kanit',sans-serif; font-size:13.5px; font-weight:500; color:var(--muted);
+  background:none; border:none; padding:7px 16px; border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:7px; transition:.18s;
+}
+.os-toggle button.active{background:var(--grad); color:#fff; box-shadow:0 3px 10px rgba(229,50,43,.32)}
+.os-toggle button:not(.active):hover{color:var(--ink)}
+
+/* progress */
+.prog-wrap{display:flex; align-items:center; gap:10px; min-width:170px}
+.prog-track{flex:1; height:7px; background:var(--chip); border-radius:99px; overflow:hidden; min-width:90px}
+.prog-fill{height:100%; width:0%; background:var(--grad); border-radius:99px; transition:width .5s cubic-bezier(.4,0,.2,1)}
+.prog-pct{font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700; color:var(--red); min-width:38px; text-align:right}
+
+/* ---------- HERO ---------- */
+.wrap{max-width:1400px; margin:0 auto; padding:0 44px; position:relative; z-index:1}
+.hero{padding:70px 0 40px; max-width:940px}
+.kicker{display:inline-flex; align-items:center; gap:9px; font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:500; letter-spacing:1.5px; text-transform:uppercase; color:var(--red); border:1px solid rgba(229,50,43,.28); background:rgba(229,50,43,.05); padding:6px 13px; border-radius:99px; margin-bottom:22px}
+.kicker .blink{width:7px;height:7px;border-radius:50%;background:var(--red);animation:blink 1.4s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+h1.title{font-family:'Kanit',sans-serif; font-weight:800; font-size:clamp(36px,5.6vw,60px); line-height:1.06; letter-spacing:-.5px; margin-bottom:18px}
+h1.title .g{background:var(--grad); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent}
+.hero p.lead{font-size:18px; color:var(--muted-2); max-width:780px; font-weight:400}
+.hero p.lead b{color:var(--ink); font-weight:600}
+
+.why{
+  margin-top:32px; background:var(--card); border:1px solid var(--line); border-radius:18px; padding:24px 28px; position:relative; overflow:hidden; box-shadow:var(--shadow-sm);
+}
+.why::before{content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--grad)}
+.why h3{font-family:'Kanit',sans-serif; font-weight:600; font-size:17px; margin-bottom:10px; display:flex; align-items:center; gap:9px}
+.why h3 .ic{font-size:19px}
+.why p{font-size:15px; color:var(--muted-2); font-weight:400}
+.why .flow{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:16px}
+.why .chip{font-family:'JetBrains Mono',monospace; font-size:12.5px; background:var(--chip); border:1px solid var(--line); padding:6px 12px; border-radius:8px; color:var(--ink)}
+.why .arr{color:var(--red); font-weight:700}
+
+/* ---------- LAYOUT ---------- */
+.main{display:grid; grid-template-columns:264px 1fr; gap:64px; padding:34px 0 110px; align-items:start}
+.sidenav{position:sticky; top:88px}
+.sidenav .nav-title{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:14px; padding-left:14px}
+.sidenav a{
+  display:flex; align-items:center; gap:11px; text-decoration:none; color:var(--muted);
+  font-family:'Kanit',sans-serif; font-size:14px; font-weight:400; padding:9px 14px; border-radius:10px; transition:.16s; margin-bottom:2px;
+}
+.sidenav a .num{font-family:'JetBrains Mono',monospace; font-size:11px; width:22px; height:22px; flex:none; display:flex; align-items:center; justify-content:center; border-radius:7px; background:var(--chip); border:1px solid var(--line); transition:.16s}
+.sidenav a:hover{color:var(--ink); background:var(--card2)}
+.sidenav a.done .num{background:var(--ok); border-color:var(--ok); color:#fff}
+.sidenav a.done .num::after{content:"✓"; font-size:12px}
+.sidenav a.done .num span{display:none}
+.sidenav a.active{color:var(--red-ink); background:var(--grad-soft)}
+.sidenav a.active .num{background:var(--grad); border-color:transparent; color:#fff}
+
+/* ---------- PHASES ---------- */
+.phase{margin-bottom:48px; scroll-margin-top:88px}
+.phase-head{display:flex; align-items:flex-start; gap:16px; margin-bottom:22px}
+.phase-badge{flex:none; width:46px; height:46px; border-radius:13px; background:var(--card); border:1px solid var(--line); box-shadow:var(--shadow-sm); display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; font-weight:700; font-size:17px; color:var(--red); position:relative}
+.phase-head h2{font-family:'Kanit',sans-serif; font-weight:700; font-size:23px; line-height:1.25}
+.phase-head .sub{font-size:13.5px; color:var(--muted); font-family:'Kanit',sans-serif; font-weight:400; margin-top:2px}
+
+/* step card */
+.step{
+  background:var(--card); border:1px solid var(--line); border-radius:16px; padding:20px 22px; margin-bottom:14px; transition:.2s; position:relative; box-shadow:var(--shadow-sm);
+}
+.step:hover{border-color:rgba(229,50,43,.35); box-shadow:var(--shadow-md)}
+.step.checked{border-color:rgba(229,50,43,.4); background:linear-gradient(0deg,rgba(229,50,43,.04),rgba(229,50,43,.04)),var(--card)}
+.step-top{display:flex; align-items:flex-start; gap:14px}
+.chk{flex:none; width:26px;height:26px; border:2px solid var(--line-2); border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:.18s; margin-top:1px; background:transparent}
+.chk:hover{border-color:var(--red)}
+.chk svg{width:14px;height:14px;fill:none;stroke:#fff;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round; opacity:0; transform:scale(.5); transition:.18s}
+.step.checked .chk{background:var(--ok); border-color:var(--ok)}
+.step.checked .chk svg{opacity:1; transform:scale(1)}
+.step-body{flex:1; min-width:0}
+.step-title{font-family:'Kanit',sans-serif; font-weight:600; font-size:16.5px; margin-bottom:3px}
+.step-desc{font-size:14.5px; color:var(--muted-2); font-weight:400}
+.step-desc code{font-family:'JetBrains Mono',monospace; font-size:12.8px; background:var(--chip); padding:2px 7px; border-radius:6px; color:var(--red-2)}
+.step-desc a{color:var(--red); font-weight:500}
+.step-inner{margin-top:14px}
+
+/* prompt block */
+.cmd{background:var(--term); border:1px solid var(--line); border-radius:12px; overflow:hidden; margin:12px 0; box-shadow:var(--shadow-md)}
+.cmd-head{display:flex; align-items:center; gap:9px; padding:9px 13px; background:var(--card2); border-bottom:1px solid var(--line)}
+.dots{display:flex; gap:6px}
+.dots i{width:11px;height:11px;border-radius:50%;display:block}
+.dots i:nth-child(1){background:#E5322B} .dots i:nth-child(2){background:#E0C0BE} .dots i:nth-child(3){background:#D2D2D8}
+.cmd-label{font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted); letter-spacing:.4px}
+.cmd-head .sp{flex:1}
+.copy-btn{font-family:'Kanit',sans-serif; font-size:12.5px; font-weight:500; color:var(--ink); background:var(--card); border:1px solid var(--line-2); padding:5px 12px; border-radius:7px; cursor:pointer; display:flex; align-items:center; gap:6px; transition:.16s}
+.copy-btn:hover{background:var(--red); border-color:var(--red); color:#fff}
+.copy-btn.copied{background:var(--ok); border-color:var(--ok); color:#fff}
+.copy-btn svg{width:13px;height:13px}
+.cmd pre{padding:15px 16px; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:12.8px; line-height:1.7; white-space:pre-wrap; word-break:break-word}
+.cmd pre code{color:var(--code-ink); font-family:'Sarabun','JetBrains Mono',monospace}
+
+.note{display:flex; gap:11px; padding:13px 15px; border-radius:11px; font-size:13.8px; margin:11px 0; font-weight:400; line-height:1.6}
+.note .ic{flex:none; font-size:16px; line-height:1.4}
+.note.tip{background:var(--card2); border:1px solid var(--line)}
+.note.warn{background:#FFF6E9; border:1px solid #F1D7A6}
+.note.crit{background:#FCEBEA; border:1px solid #F2C9C6}
+.note b{font-weight:600; color:var(--ink)}
+.note code{font-family:'JetBrains Mono',monospace; font-size:12.5px; background:var(--chip); padding:1px 6px; border-radius:5px; color:var(--red-2)}
+
+/* prep / folder step */
+.folder{font-family:'JetBrains Mono',monospace; font-size:12.6px; background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin:12px 0; color:var(--muted-2); line-height:1.95}
+.folder .root{color:var(--ink); font-weight:700}
+.folder .fline{color:var(--red-2)}
+.steps-num{counter-reset:sn; list-style:none; margin:12px 0 4px; padding:0}
+.steps-num li{position:relative; padding:7px 0 7px 36px; font-size:14px; color:var(--muted-2); font-weight:400; line-height:1.6}
+.steps-num li::before{counter-increment:sn; content:counter(sn); position:absolute; left:0; top:6px; width:24px; height:24px; border-radius:7px; background:var(--grad); color:#fff; font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center}
+.steps-num li b{color:var(--ink); font-weight:600}
+.steps-num li code{font-family:'JetBrains Mono',monospace; font-size:12.4px; background:var(--chip); padding:2px 7px; border-radius:6px; color:var(--red-2)}
+
+/* KPI table */
+.kpi-tbl{width:100%; border-collapse:collapse; margin-top:6px; font-size:13.6px}
+.kpi-tbl th,.kpi-tbl td{text-align:left; padding:10px 13px; border-bottom:1px solid var(--line); vertical-align:top}
+.kpi-tbl th{font-family:'Kanit',sans-serif; font-weight:600; color:var(--ink); background:var(--card2)}
+.kpi-tbl td{color:var(--muted-2); font-weight:400}
+.kpi-tbl td b{color:var(--red-2); font-weight:600; font-family:'JetBrains Mono',monospace; font-size:12.8px}
+.kpi-tbl tr:hover td{background:var(--card2)}
+
+/* format selector (Prompt 5) */
+.seg-label{font-family:'Kanit',sans-serif; font-size:13.5px; font-weight:600; color:var(--ink); margin:2px 0 8px; display:flex; align-items:center; gap:7px}
+.seg{display:inline-flex; flex-wrap:wrap; gap:4px; background:var(--chip); border:1px solid var(--line); border-radius:11px; padding:4px; margin:0 0 14px}
+.seg button{font-family:'Kanit',sans-serif; font-size:13px; font-weight:500; color:var(--muted); background:none; border:none; padding:7px 14px; border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:6px; transition:.16s}
+.seg button.active{background:var(--grad); color:#fff; box-shadow:0 3px 10px rgba(229,50,43,.3)}
+.seg button:not(.active):hover{color:var(--ink)}
+
+/* duty chips */
+.duties{display:flex; flex-wrap:wrap; gap:8px; margin-top:6px}
+.duty{font-size:13px; background:var(--card2); border:1px solid var(--line); padding:7px 13px; border-radius:9px; color:var(--muted-2)}
+.duty span{color:var(--red); margin-right:6px}
+
+.finish{margin-top:14px; background:var(--grad-soft); border:1px solid rgba(229,50,43,.25); border-radius:18px; padding:28px; text-align:center}
+.finish h3{font-family:'Kanit',sans-serif; font-weight:700; font-size:21px; margin-bottom:8px}
+.finish p{font-size:14.5px; color:var(--muted-2); font-weight:400; max-width:620px; margin:0 auto}
+
+footer{border-top:1px solid var(--line); padding:26px 0; text-align:center; color:var(--muted); font-size:12.5px}
+footer b{color:var(--ink); font-family:'Poppins',sans-serif}
+
+.toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(120px); background:var(--grad); color:#fff; font-family:'Kanit',sans-serif; font-weight:600; padding:14px 26px; border-radius:14px; box-shadow:0 14px 36px rgba(229,50,43,.4); z-index:99; transition:.45s cubic-bezier(.4,0,.2,1); font-size:15px}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+@media(max-width:980px){
+  .main{grid-template-columns:1fr; gap:0}
+  .sidenav{display:none}
+  .topbar-inner{gap:12px; padding:13px 22px}
+  .wrap{padding:0 22px}
+  .prog-wrap{order:5; width:100%; min-width:0}
+  .hero{padding:46px 0 26px}
+  .kpi-tbl{font-size:12.6px}
+  .kpi-tbl th,.kpi-tbl td{padding:8px 9px}
+}
+</style>
+</head>
+<body class="mode-honda">
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="mark" id="brandIcon">🧭</div>
+      <div>
+        <b>Manager Co-worker</b> <span id="brandSub">· AI Setup Lab</span>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <div class="role-pick">
+      <span class="rp-label">บทบาท</span>
+      <select id="roleSelect"></select>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+      <div class="prog-pct" id="progPct">0%</div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <!-- HERO -->
+  <div class="hero">
+    <div class="kicker"><span class="blink"></span><span id="heroKicker"></span></div>
+    <h1 class="title" id="heroTitle"></h1>
+    <p class="lead" id="heroLead"></p>
+
+    <div class="why">
+      <h3><span class="ic">🎯</span> ทำไมต้องเดินทีละ Prompt?</h3>
+      <p>เพราะเราอยากได้ AI ที่ <b>รู้จักธุรกิจเราจริง ๆ</b> ไม่ใช่ตอบกว้าง ๆ — 6 Prompt นี้พา Claude จาก "ไม่รู้อะไรเลย" ไปเป็น co-worker ที่เข้าใจหน้าที่, KPI และสไตล์การตัดสินใจของคุณ แล้วสร้างระบบงาน + Dashboard สรุปจากไฟล์จริงที่ใช้งานได้ทุกเดือน</p>
+      <div class="flow">
+        <span class="chip">1 · สัมภาษณ์</span><span class="arr">→</span>
+        <span class="chip">2 · SKILL.md</span><span class="arr">→</span>
+        <span class="chip">3 · Project</span><span class="arr">→</span>
+        <span class="chip">4 · Roadmap</span><span class="arr">→</span>
+        <span class="chip">5 · ระบบงาน</span><span class="arr">→</span>
+        <span class="chip">6 · Dashboard</span><span class="arr">✨</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- SIDE NAV -->
+    <nav class="sidenav">
+      <div class="nav-title">Roadmap</div>
+      <a href="#p0" data-phase="p0"><span class="num"><span>0</span></span> ภาพรวม + KPI</a>
+      <a href="#p1" data-phase="p1"><span class="num"><span>1</span></span> Interview</a>
+      <a href="#p2" data-phase="p2"><span class="num"><span>2</span></span> สร้าง SKILL.md</a>
+      <a href="#p3" data-phase="p3"><span class="num"><span>3</span></span> ตั้ง Project</a>
+      <a href="#p4" data-phase="p4"><span class="num"><span>4</span></span> Day 1 + Roadmap</a>
+      <a href="#p5" data-phase="p5"><span class="num"><span>5</span></span> ระบบงาน</a>
+      <a href="#p6" data-phase="p6"><span class="num"><span>6</span></span> Dashboard สรุป</a>
+    </nav>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- PHASE 0 -->
+      <section class="phase" id="p0">
+        <div class="phase-head">
+          <div class="phase-badge">0</div>
+          <div><h2>ภาพรวมตำแหน่ง + KPI ที่ต้องดู</h2><div class="sub">อ่านให้เข้าใจก่อนเริ่ม — Prompt ทั้งหมดจะอ้างอิงหน้าที่และ KPI ชุดนี้</div></div>
+        </div>
+        <div class="step" data-id="s0">
+          <div class="step-top">
+            <div class="chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="step-body">
+              <div class="step-title" id="dutyTitle"></div>
+              <div class="step-desc" id="dutyDesc"></div>
+              <div class="step-inner">
+                <div class="duties" id="duties"></div>
+                <div class="note tip" style="margin-top:16px"><span class="ic">📊</span><div><b>KPI ที่ต้องดูแล</b> — ชุดนี้คือหัวใจของ Dashboard ที่จะสร้างใน Prompt 5 และวิเคราะห์ใน Prompt 6</div></div>
+                <table class="kpi-tbl" id="kpiTable"></table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PHASE 1 -->
+      <section class="phase" id="p1">
+        <div class="phase-head">
+          <div class="phase-badge">1</div>
+          <div><h2>Prompt 1 — สัมภาษณ์ (Interview)</h2><div class="sub">วางในแชทธรรมดา (Default Sonnet, ไม่ต้องใน Project) → Claude ถามทีละข้อ → ตอบครบแล้วไป Prompt 2</div></div>
+        </div>
+        <div class="step" data-id="s1">
+          <div class="step-top">
+            <div class="chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="step-body">
+              <div class="step-title">ให้ Claude สัมภาษณ์คุณ เก็บข้อมูลทำ SKILL.md</div>
+              <div class="step-desc">Copy บล็อกด้านล่าง → วางในแชท → ตอบทีละข้อ (พิมพ์แค่ A/B/0/E) จนครบ 4 หมวด</div>
+              <div class="step-inner">
+                <div class="cmd">
+                  <div class="cmd-head"><span class="dots"><i></i><i></i><i></i></span><span class="cmd-label" data-lbl="p1"></span><span class="sp"></span><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>คัดลอก</button></div>
+                  <pre><code data-prompt="p1"></code></pre>
+                </div>
+                <div class="note warn"><span class="ic">⚠️</span><div><b>อย่าใจร้อน:</b> ตอบทีละข้อให้ครบทั้ง 4 หมวดก่อน อย่าข้ามไป Prompt 2 จนกว่า Claude จะสรุป gap ("ต้องหาก่อน" / "รอได้") ให้ครบ</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PHASE 2 -->
+      <section class="phase" id="p2">
+        <div class="phase-head">
+          <div class="phase-badge">2</div>
+          <div><h2>Prompt 2 — สร้าง SKILL.md</h2><div class="sub">Universal Template · ใช้ต่อในแชทเดิมหลังตอบ Prompt 1 ครบ → ได้ไฟล์ SKILL.md กด Save Skill ได้ทันที</div></div>
+        </div>
+        <div class="step" data-id="s2">
+          <div class="step-top">
+            <div class="chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="step-body">
+              <div class="step-title">ให้ Claude เขียน SKILL.md จากบทสัมภาษณ์</div>
+              <div class="step-desc">ต่อในแชทเดียวกับ Prompt 1 — Claude จะสรุปทุกอย่างเป็นไฟล์ skill ที่ Save ได้</div>
+              <div class="step-inner">
+                <div class="cmd">
+                  <div class="cmd-head"><span class="dots"><i></i><i></i><i></i></span><span class="cmd-label">PROMPT 2 — Generate SKILL.md</span><span class="sp"></span><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>คัดลอก</button></div>
+                  <pre><code data-prompt="p2"></code></pre>
+                </div>
+                <div class="note tip"><span class="ic">💡</span><div><b>name ต้องเป็นตัวพิมพ์เล็กล้วน เป็นภาษาอังกฤษ ห้ามมี space/อักขระพิเศษ</b> — แต่ละบทบาทใช้ name ของตัวเอง (เช่น <code data-skill="1"></code>) เพื่อให้พิมพ์ <code data-skillcmd="1"></code> เรียกได้ (ถ้าตั้งตัวใหญ่จะขึ้น "Unknown command")</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PHASE 3 -->
+      <section class="phase" id="p3">
+        <div class="phase-head">
+          <div class="phase-badge">3</div>
+          <div><h2>Prompt 3 — ตั้ง Project</h2><div class="sub">Universal Template · ใช้หลัง Save SKILL.md → ได้ Project Description + Instructions ไปวางใน Claude Project</div></div>
+        </div>
+        <div class="step" data-id="s3a">
+          <div class="step-top">
+            <div class="chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="step-body">
+              <div class="step-title">ขั้นที่ 1 — สร้าง Claude Project</div>
+              <div class="step-desc">ตั้ง Project แยกไว้เป็นบ้านถาวรของบทบาทนี้ — แนบ Skill ที่ Save ไว้รอบที่แล้ว แล้วค่อยรัน Prompt สัมภาษณ์ในขั้นถัดไป</div>
+              <div class="step-inner">
+                <ol class="steps-num">
+                  <li>เปิด Claude → กด <b>+ New Project</b> (เมนูซ้าย) → ตั้งชื่อ <code data-proj="1"></code></li>
+                  <li>ใส่คำอธิบายสั้น ๆ ในช่อง "What are you trying to achieve?" <span data-projex="1"></span></li>
+                  <li>แนบ <b>Skill / SKILL.md</b> ที่ Save ไว้จาก Prompt 2 เข้า Project (Project knowledge / Files) เพื่อให้ Claude รู้จักธุรกิจตั้งแต่ต้น</li>
+                  <li>เปิดแชทแรกใน Project ที่เพิ่งสร้าง → พร้อมไปขั้นที่ 2</li>
+                </ol>
+                <div class="note tip"><span class="ic">📌</span><div>ทำ Project ให้เสร็จ<b>ก่อน</b>วาง Prompt ข้างล่าง — Prompt สัมภาษณ์จะให้ผลดีที่สุดเมื่อรันอยู่ในแชทแรกของ Project ที่มี Skill แนบไว้แล้ว</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step" data-id="s3">
+          <div class="step-top">
+            <div class="chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="step-body">
+              <div class="step-title">ขั้นที่ 2 — สัมภาษณ์รอบ Project (วาง Prompt)</div>
+              <div class="step-desc">วาง Prompt นี้ในแชทแรกของ Project → ตอบ 4 หมวด → ได้ Project Description + Instructions ไปวางใน Project</div>
+              <div class="step-inner">
+                <div class="cmd">
+                  <div class="cmd-head"><span class="dots"><i></i><i></i><i></i></span><span class="cmd-label">PROMPT 3 — Project Setup Interview</span><span class="sp"></span><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>คัดลอก</button></div>
+                  <pre><code data-prompt="p3"></code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step" data-id="s3b">
+          <div class="step-top">
+            <div class="chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="step-body">
+              <div class="step-title">ขั้นที่ 3 — วาง Description + Instructions ลงใน Project</div>
+              <div class="step-desc">เอา 2 อย่างที่ Claude ส่งมาในขั้นที่ 2 ไปตั้งค่าใน Project จริง — เสร็จแล้ว AI จะจำ context นี้ทุกแชทใน Project</div>
+              <div class="step-inner">
+                <ol class="steps-num">
+                  <li>เปิด Project <code data-proj="2"></code> → กด <b>⚙️ Settings / Edit</b> ของ Project</li>
+                  <li>วาง <b>① Project Description</b> ลงในช่อง "What are you trying to achieve?"</li>
+                  <li>วาง <b>② Project Instructions</b> ฉบับเต็มลงในช่อง <b>Instructions</b> ของ Project</li>
+                  <li>กด <b>Save</b> → เปิดแชทใหม่ใน Project เพื่อทดสอบว่า Claude เข้าใจ context</li>
+                </ol>
+                <div class="note tip"><span class="ic">📌</span><div>Instructions อยู่ระดับ Project — จะมีผลกับ<b>ทุกแชท</b>ใน Project นี้ ไม่ต้องวาง context ซ้ำทุกครั้ง ทำครั้งเดียวจบ</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PHASE 4 -->
+      <section class="phase" id="p4">
+        <div class="phase-head">
+          <div class="phase-badge">4</div>
+          <div><h2>Prompt 4 — Day 1 Onboarding + Roadmap</h2><div class="sub">Universal Template · แชทแรกใน Project ที่เพิ่งตั้ง → ได้ไฟล์ Roadmap.docx ไว้ pin บนสุด</div></div>
+        </div>
+        <div class="step" data-id="s4">
+          <div class="step-top">
+            <div class="chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="step-body">
+              <div class="step-title">วันแรกของ AI — สรุปธุรกิจ + วาด Roadmap</div>
+              <div class="step-desc">วางใน Project Chat → ได้ไฟล์ <code data-docx="1"></code> → Download → Upload เข้า Project Files → Pin ไว้บนสุด</div>
+              <div class="step-inner">
+                <div class="cmd">
+                  <div class="cmd-head"><span class="dots"><i></i><i></i><i></i></span><span class="cmd-label">PROMPT 4 — Day 1 Onboarding</span><span class="sp"></span><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>คัดลอก</button></div>
+                  <pre><code data-prompt="p4"></code></pre>
+                </div>
+                <div class="note tip"><span class="ic">📌</span><div>หลังได้ไฟล์: <b>Download → Upload เข้า Project Files → Pin บนสุด</b> ทุกครั้งที่เปิดแชทใหม่ใน Project นี้ Claude จะจำบริบทยาวต่อเนื่อง</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PHASE 5 -->
+      <section class="phase" id="p5">
+        <div class="phase-head">
+          <div class="phase-badge">5</div>
+          <div><h2 id="p5Title"></h2><div class="sub">เลือกฟอร์แมตได้: 📊 Excel · 📗 Google Sheets · 🌐 HTML → ได้ระบบ Tracker + Dashboard พร้อมใช้ (HTML = บันทึกข้อมูลได้ในตัว, ทำซ้ำได้ทุกเดือน)</div></div>
+        </div>
+        <div class="step" data-id="s5">
+          <div class="step-top">
+            <div class="chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="step-body">
+              <div class="step-title" id="p5StepTitle"></div>
+              <div class="step-desc" id="p5StepDesc"></div>
+              <div class="step-inner">
+                <div class="seg-label">📦 เลือกฟอร์แมตที่อยากได้</div>
+                <div class="seg" id="p5fmt">
+                  <button type="button" data-fmt="xlsx">📊 Excel</button>
+                  <button type="button" data-fmt="sheet">📗 Google Sheets</button>
+                  <button type="button" data-fmt="html" class="active">🌐 HTML (CRM + Dashboard)</button>
+                </div>
+                <div class="cmd">
+                  <div class="cmd-head"><span class="dots"><i></i><i></i><i></i></span><span class="cmd-label" data-lbl="p5"></span><span class="sp"></span><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>คัดลอก</button></div>
+                  <pre><code data-prompt="p5"></code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PHASE 6 -->
+      <section class="phase" id="p6">
+        <div class="phase-head">
+          <div class="phase-badge">6</div>
+          <div><h2>Prompt 6 — สร้าง Dashboard สรุปจากไฟล์ข้อมูล</h2><div class="sub">วางไฟล์ข้อมูลในโฟลเดอร์ก่อน → ให้ Claude อ่านไฟล์แล้วสร้าง Dashboard สรุป + ชี้ปัญหา (ทำซ้ำได้ทุกเดือน)</div></div>
+        </div>
+
+        <div class="step" data-id="s6f">
+          <div class="step-top">
+            <div class="chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="step-body">
+              <div class="step-title">ขั้นที่ 1 — ให้ Claude สร้างโครงสร้างโฟลเดอร์โปรเจค</div>
+              <div class="step-desc">วาง Prompt นี้ให้ Claude สร้างโฟลเดอร์ย่อยแบบเป็นระบบ (แยกข้อมูลดิบ / Dashboard / รายงาน / อ้างอิง) ก่อนเอาไฟล์ไปวาง — จะได้ทำงานเป็นระเบียบ หาของเจอ และทำซ้ำทุกเดือนได้</div>
+              <div class="step-inner">
+                <div class="cmd">
+                  <div class="cmd-head"><span class="dots"><i></i><i></i><i></i></span><span class="cmd-label">PROMPT 6.1 — สร้างโครงสร้างโฟลเดอร์</span><span class="sp"></span><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>คัดลอก</button></div>
+                  <pre><code data-prompt="p61"></code></pre>
+                </div>
+                <div class="folder">
+<span class="root">📁 <span data-folder="1"></span></span>
+&nbsp;&nbsp;├─ <span class="fline">01_Data/</span>
+&nbsp;&nbsp;├─ <span class="fline">02_Dashboard/</span>
+&nbsp;&nbsp;├─ <span class="fline">03_Reports/</span>
+&nbsp;&nbsp;├─ <span class="fline">04_Reference/</span>
+&nbsp;&nbsp;└─ <span class="fline">05_Archive/</span>
+                </div>
+                <div class="note tip"><span class="ic">📌</span><div>ทำขั้นนี้<b>ครั้งเดียว</b>ตอนเริ่ม — เดือนถัด ๆ ไปแค่เอาไฟล์ใหม่ไปวางใน <code>01_Data/</code> แล้วรัน Dashboard ซ้ำได้เลย</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step" data-id="s6a">
+          <div class="step-top">
+            <div class="chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="step-body">
+              <div class="step-title">ขั้นที่ 2 — วางไฟล์ข้อมูลลงในโฟลเดอร์</div>
+              <div class="step-desc">เอาไฟล์ข้อมูลที่มีอยู่ (Excel / CSV / export รายเดือน) ไปวางใน <code>01_Data/</code> ที่เพิ่งสร้าง แล้ว upload เข้า Project / แนบในแชท — Claude จะได้อ่านครบในที่เดียว</div>
+              <div class="step-inner">
+                <ol class="steps-num">
+                  <li>เปิดโฟลเดอร์ <code>01_Data/</code> ที่ Claude สร้างให้ในขั้นที่ 1</li>
+                  <li>เอาไฟล์ข้อมูลทั้งหมดมาวางรวมกัน <span data-datafiles="1"></span></li>
+                  <li>ตั้งชื่อไฟล์ให้สื่อ + มีเดือน เช่น <code data-datafile="1"></code> เพื่อให้ Claude แยกช่วงเวลาได้ถูก</li>
+                  <li>เปิด Claude Project ที่ตั้งไว้ → ลากไฟล์ใน <code>01_Data/</code> เข้า <b>Project Files</b> (หรือแนบไฟล์ในแชท)</li>
+                </ol>
+                <div class="note tip"><span class="ic">📌</span><div>วางไฟล์ให้ครบ<b>ก่อน</b>รัน Prompt ข้างล่าง — ถ้าไฟล์ไม่อยู่ใน Project/แชท Claude จะอ่านข้อมูลจริงไม่ได้ แล้วต้องเดา</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step" data-id="s6">
+          <div class="step-top">
+            <div class="chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="step-body">
+              <div class="step-title">ขั้นที่ 3 — ให้ Claude อ่านไฟล์แล้วสร้าง Dashboard สรุป</div>
+              <div class="step-desc">หลังวางไฟล์ครบแล้ว แทน <code>[ระบุเดือน]</code> ด้วยเดือนที่ต้องการ แล้ววาง Prompt นี้ใน Project ที่มีไฟล์อยู่</div>
+              <div class="step-inner">
+                <div class="cmd">
+                  <div class="cmd-head"><span class="dots"><i></i><i></i><i></i></span><span class="cmd-label" data-lbl="p6"></span><span class="sp"></span><button class="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>คัดลอก</button></div>
+                  <pre><code data-prompt="p6"></code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="finish">
+          <h3 id="finishTitle"></h3>
+          <p id="finishText"></p>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<footer>
+  สร้างจาก <b>Universal Management — Claude Co-worker Playbook</b> · <b>v4 Multi-Role</b> · 6-Prompt Framework — เพิ่ม ผู้จัดการสาขา · Tart Motorad · Go Moto — เลือกบทบาทได้ที่มุมขวาบน
+</footer>
+
+<div class="toast" id="toast">บันทึกความคืบหน้าแล้ว ✓</div>
+
+<script>
+/* ===========================================================
+   SME Manager — AI Co-worker Setup Lab v2 (Multi-Role)
+   Data + render engine. Pairs with SME_Roles_Setup_Lab_v2.html
+   =========================================================== */
+(function(){
+"use strict";
+
+/* ---------- universal prompt builders (role-parametrised) ---------- */
+function buildP2(r){
+return `จากทุกอย่างที่เราคุยกันมา ช่วยเขียน SKILL.md ให้ผมเลยครับ
+ต้องมี 5 ส่วนนี้:
+
+1. ข้อมูลธุรกิจ + บทบาทของ ${r.roleTH} (สรุปจากที่คุยกันมา ให้ครบและถูกต้อง)
+2. หน้าที่ของ ${r.roleTH} AI (ต้องช่วยผมทำอะไรบ้าง)
+3. วิธีตอบ (ตรง ชัด ใช้ตาราง ชี้ปัญหาก่อนเสมอ)
+4. KPI / ตัวเลขที่อยากเน้นดูเป็นพิเศษ
+5. สิ่งที่ต้องช่วยผมหาก่อน (จากกลุ่ม "ต้องหาก่อนสร้างระบบ" ที่สรุปไว้)
+
+ระบุว่าแต่ละอันสำคัญยังไง หาได้จากไหน และควรหาก่อนหรือรอได้
+
+เขียนให้ครบ พร้อมใช้งานได้เลยครับ
+
+⚠️ ไฟล์ต้องเริ่มต้นด้วย YAML frontmatter นี้เสมอ (ถ้าไม่มี Save ไม่ได้):
+
+---
+name: ${r.skillName}
+description: ${r.skillDesc}
+version: 1.0
+---
+
+⚠️ name ต้องเป็นตัวพิมพ์เล็กล้วน (${r.skillName} ไม่ใช่ ${r.skillName.charAt(0).toUpperCase()+r.skillName.slice(1)}) เพราะคำสั่งเรียก skill เป็น case-sensitive — ถ้าตั้งตัวใหญ่จะพิมพ์ /${r.skillName} ไม่ติด
+
+แล้วส่งเป็นไฟล์ SKILL.md ผมจะได้กด Save skill ได้ทันทีในแชทนี้`;
+}
+
+function buildP3(r){
+return `ผมกำลังจะสร้าง Claude Project เพื่อให้คุณทำงานใน context ของบริษัทผมโดยเฉพาะ ในบทบาท ${r.roleTH}
+
+คุณมี Skill ที่รู้จักธุรกิจผมอยู่แล้ว (ผมสร้างไว้รอบที่แล้ว) แต่ Project Instructions จะทำให้คุณรู้จักบริษัทผมในระดับที่ลึกกว่านั้น เช่น โครงสร้างองค์กร เป้าหมายปีนี้ ข้อมูลที่จะ upload เข้า Project และสิ่งที่อยากให้โฟกัสเป็นพิเศษ
+
+ขั้นแรกสุด — ห้ามถามซ้ำ:
+1. อ่าน Skill ที่แนบไว้ใน Project ก่อน แล้วสรุปสั้น ๆ ว่า "จาก Skill ผมรู้เรื่องนี้แล้ว: ..." (ธุรกิจ, บทบาท, KPI, ปัญหาหลัก ฯลฯ)
+2. อะไรที่ Skill ตอบได้แล้ว ห้ามถามซ้ำ — ให้ดึงมาใช้เลย
+3. ถามเฉพาะข้อมูล "ใหม่" ระดับ Project ที่ Skill ยังไม่มี หรือที่ต้อง update ให้เป็นปัจจุบันเท่านั้น
+4. ถ้าหมวดไหน Skill ครอบคลุมครบแล้ว ให้ข้ามไปเลย แล้วบอกผมว่า "หมวดนี้ใช้ข้อมูลจาก Skill ได้เลย ไม่ต้องถาม"
+
+กฎการถาม (สำคัญมาก):
+• ถามทีละคำถาม รอผมตอบก่อนแล้วค่อยถามต่อ
+• ถามเฉพาะสิ่งที่ Skill ยังไม่รู้ — ถ้ารู้แล้วให้ข้าม
+• แต่ละตัวเลือกต้องอยู่คนละบรรทัด
+• รูปแบบที่ต้องใช้ทุกครั้ง:
+
+คำถามที่ X — [หัวข้อ]
+[คำถาม]
+
+A — [ตัวเลือก]
+B — [ตัวเลือก]
+C — [ตัวเลือก]
+D — [ตัวเลือก]
+0 — ยังไม่รู้ / ไม่แน่ใจ
+E — ไม่มีในนี้
+
+ถ้าผมตอบ E ให้เสนอตัวเลือกใหม่สำหรับคำถามนั้นเท่านั้น
+
+ครอบคลุม 4 หมวดนี้ (ข้ามหมวด/คำถามที่ Skill ตอบได้แล้ว):
+
+หมวด 1 — context บริษัทสำหรับ${r.domainTH}: เป้าหมายปีนี้, ปัญหาหลักที่กำลังเผชิญ, ทีม/คนที่เกี่ยวข้องกี่คน (ส่วนไหนอยู่ใน Skill แล้วให้ใช้เลย ถามเฉพาะที่ขาดหรือต้อง update)
+
+หมวด 2 — ข้อมูลที่จะอยู่ใน Project: จะ upload ไฟล์อะไรเข้ามาบ้าง เช่น ${r.projUploadEx}
+
+หมวด 3 — งานหลักที่อยากให้ ${r.roleTH} AI ทำใน Project นี้: เช่น วิเคราะห์ทุกเดือน / ช่วยตัดสินใจ / ดู trend ระยะยาว
+
+หมวด 4 — ข้อตกลงการทำงาน: รูปแบบ output ที่ชอบ, เรื่องที่ห้ามตอบนอกขอบเขต (ถ้า Skill ระบุวิธีตอบไว้แล้ว ใช้ต่อได้เลย)
+
+พอครบแล้ว ส่งมาให้ผม 2 อย่างนี้:
+
+① Project Description (1–2 ประโยค) สำหรับใส่ในช่อง "What are you trying to achieve?" ของ Claude Project
+
+② Project Instructions ฉบับเต็ม สำหรับใส่ในช่อง Instructions ของ Project`;
+}
+
+function buildP4(r){
+return `นี่คือวันแรกที่คุณเข้ารับตำแหน่ง ${r.roleTH} ที่นี่
+
+ทำ 3 อย่างนี้:
+
+1. สรุปสั้น ๆ ว่าคุณเข้าใจธุรกิจนี้ว่าอะไร และ KPI อะไรที่จะดูแล
+2. บอกว่าระบบงานตอนนี้ขาดอะไรบ้าง เรียงตามความเร่งด่วน
+3. สร้าง Roadmap เป็น Visual แผนที่บนหน้าจอ
+   แสดงให้เห็นว่าจะสร้างอะไรก่อน-หลัง เชื่อมกันยังไง
+   สร้างเป็น diagram ที่อ่านง่ายได้เลยครับ
+
+และส่งสรุปทั้งหมด (ข้อ 1–3) เป็นไฟล์ .docx ชื่อ "${r.projName} Roadmap.docx" มาให้ด้วยครับ เพื่อให้ Upload เข้า Project ได้โดยตรง`;
+}
+
+function buildP61(r, mode){
+var root = mode==='honda' ? r.folderHonda : r.folderSme;
+return `ช่วยสร้างโครงสร้างโฟลเดอร์สำหรับงาน ${r.roleTH} ให้ผมหน่อยครับ ขอให้เป็นระบบ ทำงานซ้ำได้ทุกเดือน และหาของเจอง่าย
+
+ให้สร้างโฟลเดอร์หลักชื่อ ${root} แล้วมีโฟลเดอร์ย่อยแยกหน้าที่ชัดเจน อย่างน้อยตามนี้:
+
+• 01_Data/ — ไฟล์ข้อมูลดิบรายเดือน (Excel/CSV ที่ export มา ยังไม่แตะ)
+• 02_Dashboard/ — ไฟล์ Dashboard ที่คุณสร้างให้
+• 03_Reports/ — รายงาน/สรุปรายเดือนที่เป็นข้อความ
+• 04_Reference/ — ข้อมูลอ้างอิงที่ไม่ค่อยเปลี่ยน (${r.refEx})
+• 05_Archive/ — ของเก่าที่เก็บไว้ ไม่ให้รก
+
+กฎ:
+1. อธิบายสั้น ๆ ว่าแต่ละโฟลเดอร์ใส่อะไร ตั้งชื่อไฟล์ยังไง
+2. ถ้ามีโฟลเดอร์ที่ควรเพิ่มสำหรับงาน${r.domainTH}โดยเฉพาะ เสนอมาได้
+3. สร้างโครงสร้างจริงให้เลย แล้วโชว์เป็น tree ให้ผมเห็นภาพ`;
+}
+
+/* ---------- Prompt 5 format selector (Excel / Google Sheets / HTML) ---------- */
+var FMT_NAME = { xlsx:'Excel', sheet:'Google Sheets', html:'HTML' };
+var FMT_INTRO = {
+  xlsx:'เป็นไฟล์ Excel (.xlsx)',
+  sheet:'เป็น Google Sheets',
+  html:'เป็นเว็บแอป (Tracker + Interactive Dashboard) HTML ไฟล์เดียวจบ'
+};
+var FMT_TAIL = {
+  xlsx:'\nส่งมาเป็นไฟล์ .xlsx พร้อมใช้งานได้เลยครับ ใส่ Data Validation (dropdown ดึงจากชีต Settings), สูตรคำนวณ (SUMIFS / COUNTIFS / AVERAGEIFS) และ Conditional Formatting (แดง/เหลือง/เขียว) ในแต่ละชีตให้ครบ พร้อมกราฟฝังในชีต Dashboard',
+  sheet:'\nทำเป็น Google Sheets ให้ผม: ส่งไฟล์ .xlsx โครงครบที่ Import เข้า Google Sheets ได้ทันที (File → Import → Replace) + ขั้นตอน setup หลัง import (dropdown / Data Validation, กฎ Conditional Formatting แดง/เหลือง/เขียว, การแชร์สิทธิ์ให้ทีม) และถ้าจำเป็นแนบ Google Apps Script สำหรับฟอร์มเพิ่มรายการ + ปุ่ม refresh Dashboard อัตโนมัติ พร้อมขั้นตอนทีละขั้นให้ทำตามได้เลย',
+  html:'\nทำเป็นเว็บแอปไฟล์เดียวจบ (HTML/CSS/JS รวมในไฟล์เดียว, vanilla JS, Chart.js ผ่าน CDN, เปิดในเบราว์เซอร์ได้ทันที) — เน้นบันทึกข้อมูลได้จริง:\n• ฟอร์ม เพิ่ม / แก้ไข / ลบ รายการครบทุก field\n• เก็บข้อมูลถาวรด้วย localStorage (refresh แล้วไม่หาย) + ปุ่ม Export/Import (CSV/JSON) ไว้สำรอง/ย้ายเครื่อง\n• ตารางหลัก ค้นหา / กรอง / เรียงได้, คลิกแถวแก้ไข, เปลี่ยนสถานะแล้ว Dashboard อัปเดตทันที\n• Dashboard: การ์ด KPI + กราฟ Chart.js + สีเตือน แดง/เหลือง/เขียว ตามเกณฑ์ข้างบน\n• seed ข้อมูลตัวอย่าง 10–15 รายการ + ปุ่ม "ล้างข้อมูลตัวอย่าง"'
+};
+/* format-neutral base structures, keyed by role then mode. [[FMT_INTRO]] / [[FMT_TAIL]] are swapped in. */
+var P5BASE = {
+  sales:{
+    honda:`สร้างระบบงานขายสำหรับดีลเลอร์ Honda (CSM) [[FMT_INTRO]] โดยยึดโครงสร้างพื้นฐานนี้เสมอ อ้างอิงข้อมูลธุรกิจจาก Project Description, Instruction และไฟล์ที่ upload ได้เลย
+
+โครงสร้างพื้นฐาน (แต่ละข้อ = 1 Sheet / แท็บ / ส่วน):
+
+1 — Settings
+• Sales Stages: เดินเข้า → สนใจ → จอง → ยื่นไฟแนนซ์ → อนุมัติ → ออกรถ / หลุดจอง
+• รุ่นรถ/สี/ราคา (Wave, Click, PCX, Scoopy, ADV ฯลฯ)
+• Sales Team: ชื่อ, สาขา, quota รายเดือน
+• ช่องทางชำระ: เงินสด / ผ่อนร้าน / ไฟแนนซ์ (กรุงศรี ฯลฯ)
+
+2 — Pipeline / คิวจอง
+Column: วันที่ | ลูกค้า | เบอร์โทร | เซล | สาขา | รุ่นรถ/สี | ราคา | Stage | โอกาสปิด % | คาดออกรถ | สถานะ | โน้ต
+ใส่ข้อมูลตัวอย่าง 10 รายการ
+
+3 — ออกรถแล้ว / หลุดจอง (Won/Lost)
+Column: วันที่ปิด | ลูกค้า | เซล | รุ่น | ราคา | ออกรถ/หลุด | เหตุผล | จำนวนวัน (เข้า→ออก)
+ใส่ตัวอย่าง 5 รายการ
+
+4 — Sales Performance Dashboard (เน้น)
+By เซล: ชื่อ | Quota | ออกรถแล้ว | % | Pipeline | Win Rate | ราคาเฉลี่ย/คัน
+% Achievement < 80% สีแดง, ≥ 100% สีเขียว
+
+5 — Pipeline Health Dashboard
+By Stage: Stage | จำนวนคิว | มูลค่า | วันเฉลี่ยใน Stage | % ไป Stage ถัดไป
+Coverage = Pipeline ÷ เป้าเดือนนี้, ถ้า < 3x สีเหลือง
+
+6 — Data Checklist (ถ้ายังขาดข้อมูล)
+
+ไม่ว่าข้อมูลจะพร้อมหรือยัง ให้สร้างระบบออกมาเลยครับ
+• ถ้าข้อมูลพร้อม: ใส่ข้อมูลตัวอย่างที่เหมาะกับดีลเลอร์รถจักรยานยนต์
+• ถ้าข้อมูลยังขาด: ใส่ตัวอย่างสมมติ + ส่วน "Data Checklist" บอกว่าต้องหาอะไรก่อน
+[[FMT_TAIL]]`,
+    sme:`สร้างระบบงานขาย [[FMT_INTRO]] โดยยึดโครงสร้างพื้นฐานนี้เสมอ อ้างอิงข้อมูลธุรกิจจาก Project Description, Instruction และไฟล์ที่ upload ได้เลย
+
+โครงสร้างพื้นฐาน (แต่ละข้อ = 1 Sheet / แท็บ / ส่วน):
+
+1 — Settings
+• Sales Stages: Lead → Qualified → Proposal → Negotiation → Closed Won/Lost
+• Products/Services: รายการที่ขาย
+• Sales Team: ชื่อ, territory/segment, quota
+• Customer Segments: SMB / Mid-Market / Enterprise หรือตาม persona
+
+2 — Pipeline / Opportunities
+Column: วันที่ | Customer | ผู้ติดต่อ/เบอร์ | Sales Owner | Product | Deal Size | Stage | Probability % | Expected Close | Status | Note
+ใส่ข้อมูลตัวอย่าง 10 รายการ
+
+3 — Closed Deals (Won/Lost)
+Column: วันที่ปิด | Customer | Sales | Deal Size | Won/Lost | Reason | Sales Cycle Days
+ใส่ตัวอย่าง 5 รายการ
+
+4 — Sales Performance Dashboard (เน้น)
+By Sales: ชื่อ | Quota | Closed Won | % | Pipeline | Win Rate | Avg Deal
+% Achievement < 80% สีแดง, ≥ 100% สีเขียว
+
+5 — Pipeline Health Dashboard
+By Stage: Stage | # Opps | Value | Avg Days in Stage | Conversion to Next
+Coverage = Pipeline ÷ Target ไตรมาสนี้, ถ้า < 3x สีเหลือง
+
+6 — Data Checklist (ถ้ายังขาดข้อมูล)
+
+ไม่ว่าข้อมูลจะพร้อมหรือยัง ให้สร้างระบบออกมาเลยครับ
+• ถ้าข้อมูลพร้อม: ใส่ข้อมูลตัวอย่างที่เหมาะกับธุรกิจนี้
+• ถ้าข้อมูลยังขาด: ใส่ตัวอย่างสมมติ + ส่วน "Data Checklist" บอกว่าต้องหาอะไรก่อน
+[[FMT_TAIL]]`
+  },
+  marketing:{
+    honda:`สร้างระบบงานการตลาดสำหรับดีลเลอร์ Honda (CSM) [[FMT_INTRO]] โดยยึดโครงสร้างพื้นฐานนี้เสมอ อ้างอิงข้อมูลธุรกิจจาก Project Description, Instruction และไฟล์ที่ upload ได้เลย
+
+โครงสร้างพื้นฐาน (แต่ละข้อ = 1 Sheet / แท็บ / ส่วน):
+
+1 — Settings
+• ช่องทาง: Facebook, TikTok, LINE OA, Google, ออฟไลน์/อีเวนต์
+• สาขาที่ต้องดูแลโปร, งบรายเดือน/ช่องทาง, เป้า Leads, เป้า Walk-in
+
+2 — Campaigns / แคมเปญ
+Column: วันที่ | ชื่อแคมเปญ | ช่องทาง | สาขา | งบ | ใช้จริง | Reach | Leads | Walk-in | ปิดการขาย | รายได้ | สถานะ | โน้ต
+ใส่ข้อมูลตัวอย่าง 10 รายการ
+
+3 — แคมเปญที่จบแล้ว (สรุปผล)
+Column: ชื่อแคมเปญ | ช่องทาง | งบรวม | Leads | Walk-in | ปิด | รายได้ | ROAS
+ใส่ตัวอย่าง 5 รายการ
+
+4 — Channel Performance Dashboard (เน้น)
+By ช่องทาง: ช่องทาง | งบ | Leads | CPL | Walk-in | ปิด | ROAS
+ROAS < 1 สีแดง, ≥ เป้า สีเขียว
+
+5 — Funnel / Spend Health Dashboard
+Funnel: Reach → Lead → Walk-in → ปิด + จุดที่ conversion ตกมากที่สุด
+Spend vs Budget, ใช้งบเกินแผน > 5% สีเหลือง
+
+6 — Data Checklist (ถ้ายังขาดข้อมูล)
+
+ไม่ว่าข้อมูลจะพร้อมหรือยัง ให้สร้างระบบออกมาเลยครับ
+• ถ้าข้อมูลพร้อม: ใส่ข้อมูลตัวอย่างที่เหมาะกับดีลเลอร์รถจักรยานยนต์
+• ถ้าข้อมูลยังขาด: ใส่ตัวอย่างสมมติ + ส่วน "Data Checklist" บอกว่าต้องหาอะไรก่อน
+[[FMT_TAIL]]`,
+    sme:`สร้างระบบงานการตลาด [[FMT_INTRO]] โดยยึดโครงสร้างพื้นฐานนี้เสมอ อ้างอิงข้อมูลธุรกิจจาก Project Description, Instruction และไฟล์ที่ upload ได้เลย
+
+โครงสร้างพื้นฐาน (แต่ละข้อ = 1 Sheet / แท็บ / ส่วน):
+
+1 — Settings
+• Channels: Facebook, Google, TikTok, Email, SEO, Offline
+• Objectives: Awareness / Lead Gen / Conversion / Retention
+• งบรายเดือน/ช่องทาง, เป้า Leads, เป้า ROAS
+
+2 — Campaigns
+Column: วันที่ | Campaign | Channel | Objective | Budget | Spend | Impressions | Clicks | Leads | Conversions | Revenue | Status | Note
+ใส่ข้อมูลตัวอย่าง 10 รายการ
+
+3 — แคมเปญที่จบแล้ว (สรุปผล)
+Column: Campaign | Channel | Spend | Leads | Conversions | Revenue | ROAS
+ใส่ตัวอย่าง 5 รายการ
+
+4 — Channel Performance Dashboard (เน้น)
+By Channel: Channel | Spend | Leads | CPL | CPA | Conversions | ROAS
+ROAS < 1 สีแดง, ≥ เป้า สีเขียว
+
+5 — Funnel / Spend Health Dashboard
+Funnel: Impressions → Clicks → Leads → Conversions + จุดที่ตกมากที่สุด
+Spend vs Budget, ใช้งบเกินแผน > 5% สีเหลือง
+
+6 — Data Checklist (ถ้ายังขาดข้อมูล)
+
+ไม่ว่าข้อมูลจะพร้อมหรือยัง ให้สร้างระบบออกมาเลยครับ
+• ถ้าข้อมูลพร้อม: ใส่ข้อมูลตัวอย่างที่เหมาะกับธุรกิจนี้
+• ถ้าข้อมูลยังขาด: ใส่ตัวอย่างสมมติ + ส่วน "Data Checklist" บอกว่าต้องหาอะไรก่อน
+[[FMT_TAIL]]`
+  },
+  finance:{
+    honda:`สร้างระบบงานการเงิน/บัญชีสำหรับดีลเลอร์ Honda (CSM) [[FMT_INTRO]] โดยยึดโครงสร้างพื้นฐานนี้เสมอ อ้างอิงข้อมูลธุรกิจจาก Project Description, Instruction และไฟล์ที่ upload ได้เลย
+
+โครงสร้างพื้นฐาน (แต่ละข้อ = 1 Sheet / แท็บ / ส่วน):
+
+1 — Settings
+• หมวดรายรับ/รายจ่าย, สาขา, บัญชีธนาคาร
+• เงื่อนไขเครดิต (กี่วัน) ของลูกค้า/คู่ค้า, เป้า Cash runway
+
+2 — Transactions / AR-AP
+Column: วันที่ | ประเภท (รับ/จ่าย) | หมวด | คู่ค้า/ลูกค้า | สาขา | จำนวนเงิน | ครบกำหนด | สถานะ (ค้าง/รับแล้ว/จ่ายแล้ว) | ช่องทาง | โน้ต
+ใส่ข้อมูลตัวอย่าง 12 รายการ + คำนวณ Aging (0-30 / 31-60 / 61-90 / >90 วัน) อัตโนมัติ
+
+3 — Bank Balances / ยอดเงินแต่ละบัญชี
+Column: บัญชี/สาขา | ยอดต้นเดือน | รับ | จ่าย | คงเหลือ
+ใส่ตัวอย่าง 5 รายการ
+
+4 — P&L Dashboard (เน้น)
+By สาขา: รายรับ | รายจ่าย | กำไร | % margin
+% margin < เป้า สีแดง, ≥ เป้า สีเขียว
+
+5 — Aging & Cash Health Dashboard
+AR Aging / AP Aging (0-30 / 31-60 / 61-90 / >90), ยอดเกิน 90 วัน สีแดง
+Cash runway (เงินสด ÷ รายจ่ายเฉลี่ย/เดือน), < 3 เดือน สีเหลือง
+
+6 — Data Checklist (ถ้ายังขาดข้อมูล)
+
+ไม่ว่าข้อมูลจะพร้อมหรือยัง ให้สร้างระบบออกมาเลยครับ
+• ถ้าข้อมูลพร้อม: ใส่ข้อมูลตัวอย่างที่เหมาะกับดีลเลอร์รถจักรยานยนต์
+• ถ้าข้อมูลยังขาด: ใส่ตัวอย่างสมมติ + ส่วน "Data Checklist" บอกว่าต้องหาอะไรก่อน
+[[FMT_TAIL]]`,
+    sme:`สร้างระบบงานการเงิน/บัญชี [[FMT_INTRO]] โดยยึดโครงสร้างพื้นฐานนี้เสมอ อ้างอิงข้อมูลธุรกิจจาก Project Description, Instruction และไฟล์ที่ upload ได้เลย
+
+โครงสร้างพื้นฐาน (แต่ละข้อ = 1 Sheet / แท็บ / ส่วน):
+
+1 — Settings
+• หมวดรายรับ/รายจ่าย, Business Units, บัญชีธนาคาร
+• เงื่อนไขเครดิตลูกค้า/คู่ค้า, เป้า Cash runway
+
+2 — Transactions / AR-AP
+Column: วันที่ | Type (รับ/จ่าย) | Category | Counterparty | Business Unit | Amount | Due Date | Status (Open/Paid) | Method | Note
+ใส่ข้อมูลตัวอย่าง 12 รายการ + คำนวณ Aging (0-30 / 31-60 / 61-90 / >90 วัน) อัตโนมัติ
+
+3 — Bank Balances
+Column: Account/Unit | Opening | In | Out | Balance
+ใส่ตัวอย่าง 5 รายการ
+
+4 — P&L Dashboard (เน้น)
+By Unit: Revenue | Cost | Profit | % margin
+% margin < เป้า สีแดง, ≥ เป้า สีเขียว
+
+5 — Aging & Cash Health Dashboard
+AR Aging / AP Aging (0-30 / 31-60 / 61-90 / >90), ยอดเกิน 90 วัน สีแดง
+Cash runway (Cash ÷ avg monthly burn), < 3 เดือน สีเหลือง
+
+6 — Data Checklist (ถ้ายังขาดข้อมูล)
+
+ไม่ว่าข้อมูลจะพร้อมหรือยัง ให้สร้างระบบออกมาเลยครับ
+• ถ้าข้อมูลพร้อม: ใส่ข้อมูลตัวอย่างที่เหมาะกับธุรกิจนี้
+• ถ้าข้อมูลยังขาด: ใส่ตัวอย่างสมมติ + ส่วน "Data Checklist" บอกว่าต้องหาอะไรก่อน
+[[FMT_TAIL]]`
+  },
+  hr:{
+    honda:`สร้างระบบงานบุคคล (HR) สำหรับดีลเลอร์ Honda (CSM) [[FMT_INTRO]] โดยยึดโครงสร้างพื้นฐานนี้เสมอ อ้างอิงข้อมูลธุรกิจจาก Project Description, Instruction และไฟล์ที่ upload ได้เลย
+⚠️ ห้ามเก็บ/แสดงข้อมูลอ่อนไหว (เลขบัตรประชาชน ฯลฯ) — เก็บเฉพาะที่จำเป็นต่อการบริหาร
+
+โครงสร้างพื้นฐาน (แต่ละข้อ = 1 Sheet / แท็บ / ส่วน):
+
+1 — Settings
+• สาขา, แผนก/ตำแหน่ง (เซล/ช่าง/ธุรการ), ประเภทพนักงาน
+• Headcount plan ต่อสาขา, เป้า Turnover, เป้า Payroll %
+
+2 — Employees / ทะเบียนพนักงาน
+Column: รหัส | ชื่อ | สาขา | แผนก/ตำแหน่ง | วันเริ่มงาน | สถานะ (ทำงาน/ลาออก) | วันลาออก | เงินเดือน | ขาด/ลา/สาย (วัน) | OT (ชม.) | โน้ต
+ใส่ข้อมูลตัวอย่าง 12 รายการ + คำนวณอายุงานอัตโนมัติ
+
+3 — Turnover Log (ผู้ลาออก)
+Column: วันลาออก | ชื่อ | สาขา/แผนก | อายุงาน | เหตุผล
+ใส่ตัวอย่าง 5 รายการ
+
+4 — HR Performance Dashboard (เน้น)
+By สาขา: Headcount จริง vs plan | ลาออก | Payroll | OT | Turnover %
+เกินเป้า/เกิน plan สีแดง
+
+5 — Attendance & Cost Health Dashboard
+คน/สาขาที่ขาด-ลา-สาย เกินเกณฑ์ สีแดง
+Payroll cost % (ค่าจ้าง ÷ ยอดขายรวม) > เป้า สีเหลือง
+
+6 — Data Checklist (ถ้ายังขาดข้อมูล)
+
+ไม่ว่าข้อมูลจะพร้อมหรือยัง ให้สร้างระบบออกมาเลยครับ
+• ถ้าข้อมูลพร้อม: ใส่ข้อมูลตัวอย่างที่เหมาะกับดีลเลอร์รถจักรยานยนต์ (เซล/ช่าง/ธุรการ หลายสาขา)
+• ถ้าข้อมูลยังขาด: ใส่ตัวอย่างสมมติ + ส่วน "Data Checklist" บอกว่าต้องหาอะไรก่อน
+[[FMT_TAIL]]`,
+    sme:`สร้างระบบงานบุคคล (HR) [[FMT_INTRO]] โดยยึดโครงสร้างพื้นฐานนี้เสมอ อ้างอิงข้อมูลธุรกิจจาก Project Description, Instruction และไฟล์ที่ upload ได้เลย
+⚠️ ห้ามเก็บ/แสดงข้อมูลอ่อนไหว (เลขบัตรประชาชน ฯลฯ) — เก็บเฉพาะที่จำเป็นต่อการบริหาร
+
+โครงสร้างพื้นฐาน (แต่ละข้อ = 1 Sheet / แท็บ / ส่วน):
+
+1 — Settings
+• แผนก, ตำแหน่ง, ประเภทการจ้าง
+• Headcount plan, เป้า Turnover, เป้า Payroll %
+
+2 — Employees
+Column: รหัส | ชื่อ | แผนก | ตำแหน่ง | วันเริ่มงาน | สถานะ (Active/Resigned) | วันลาออก | เงินเดือน | ขาด/ลา/สาย (วัน) | OT (ชม.) | โน้ต
+ใส่ข้อมูลตัวอย่าง 12 รายการ + คำนวณอายุงานอัตโนมัติ
+
+3 — Turnover Log
+Column: วันลาออก | ชื่อ | แผนก | อายุงาน | เหตุผล
+ใส่ตัวอย่าง 5 รายการ
+
+4 — HR Performance Dashboard (เน้น)
+By แผนก: Headcount จริง vs plan | ลาออก | Payroll | OT | Turnover %
+เกินเป้า/เกิน plan สีแดง
+
+5 — Attendance & Cost Health Dashboard
+คน/แผนกที่ขาด-ลา-สาย เกินเกณฑ์ สีแดง
+Payroll cost % (ค่าจ้าง ÷ รายได้) > เป้า สีเหลือง
+
+6 — Data Checklist (ถ้ายังขาดข้อมูล)
+
+ไม่ว่าข้อมูลจะพร้อมหรือยัง ให้สร้างระบบออกมาเลยครับ
+• ถ้าข้อมูลพร้อม: ใส่ข้อมูลตัวอย่างที่เหมาะกับธุรกิจนี้
+• ถ้าข้อมูลยังขาด: ใส่ตัวอย่างสมมติ + ส่วน "Data Checklist" บอกว่าต้องหาอะไรก่อน
+[[FMT_TAIL]]`
+  },
+  ops:{
+    honda:`สร้างระบบงานบริการ/ศูนย์ซ่อมสำหรับดีลเลอร์ Honda (CSM) [[FMT_INTRO]] โดยยึดโครงสร้างพื้นฐานนี้เสมอ อ้างอิงข้อมูลธุรกิจจาก Project Description, Instruction และไฟล์ที่ upload ได้เลย
+
+โครงสร้างพื้นฐาน (แต่ละข้อ = 1 Sheet / แท็บ / ส่วน):
+
+1 — Settings
+• Stages: รับเข้า → รอซ่อม → กำลังซ่อม → รออะไหล่ → เสร็จ → ส่งมอบ
+• ช่าง: ชื่อ, สาขา, ชม.ทำงาน/วัน
+• ประเภทงาน/ราคา, มาตรฐาน SLA (กี่ชม./วัน) ต่อประเภทงาน
+
+2 — Jobs / จ๊อบงาน
+Column: วันที่เปิดจ๊อบ | ลูกค้า/ทะเบียนรถ | งาน/บริการ | ช่าง | สาขา | Stage | เริ่ม-เสร็จ | TAT (วัน/ชม.) | มูลค่า | อะไหล่ที่ใช้ | โน้ต
+ใส่ข้อมูลตัวอย่าง 12 รายการ
+
+3 — งานที่ส่งมอบแล้ว (Closed)
+Column: วันส่งมอบ | งาน | ช่าง | TAT | SLA (ตรง/เกิน) | rework | มูลค่า
+ใส่ตัวอย่าง 5 รายการ
+
+4 — Technician Performance Dashboard (เน้น)
+By ช่าง: ชื่อ | จ๊อบเสร็จ | TAT เฉลี่ย | Productivity | rework
+เกิน SLA / เกินเป้า สีแดง
+
+5 — Bottleneck & SLA Health Dashboard
+จ๊อบตาม Stage + Stage ที่ค้างเยอะสุด (คอขวด), งานเกิน SLA สีแดง
+อะไหล่ stock-out ที่ทำให้รอ สีเหลือง
+
+6 — Data Checklist (ถ้ายังขาดข้อมูล)
+
+ไม่ว่าข้อมูลจะพร้อมหรือยัง ให้สร้างระบบออกมาเลยครับ
+• ถ้าข้อมูลพร้อม: ใส่ข้อมูลตัวอย่างที่เหมาะกับศูนย์บริการรถจักรยานยนต์
+• ถ้าข้อมูลยังขาด: ใส่ตัวอย่างสมมติ + ส่วน "Data Checklist" บอกว่าต้องหาอะไรก่อน
+[[FMT_TAIL]]`,
+    sme:`สร้างระบบงานปฏิบัติการ/บริการ [[FMT_INTRO]] โดยยึดโครงสร้างพื้นฐานนี้เสมอ อ้างอิงข้อมูลธุรกิจจาก Project Description, Instruction และไฟล์ที่ upload ได้เลย
+
+โครงสร้างพื้นฐาน (แต่ละข้อ = 1 Sheet / แท็บ / ส่วน):
+
+1 — Settings
+• Stages: Intake → Queue → In Progress → On Hold → Done → Delivered
+• ผู้รับผิดชอบ/ทีม, capacity ต่อวัน
+• ประเภทงาน/ราคา, มาตรฐาน SLA ต่อประเภทงาน
+
+2 — Jobs
+Column: วันที่รับงาน | ลูกค้า/Order | งาน/บริการ | ผู้รับผิดชอบ | ทีม | Stage | เริ่ม-เสร็จ | TAT | มูลค่า | วัสดุที่ใช้ | โน้ต
+ใส่ข้อมูลตัวอย่าง 12 รายการ
+
+3 — งานที่ส่งมอบแล้ว (Closed)
+Column: วันส่งมอบ | งาน | ผู้รับผิดชอบ | TAT | SLA (ตรง/เกิน) | rework | มูลค่า
+ใส่ตัวอย่าง 5 รายการ
+
+4 — Team Performance Dashboard (เน้น)
+By คน/ทีม: ชื่อ | งานเสร็จ | TAT เฉลี่ย | Productivity | rework
+เกิน SLA / เกินเป้า สีแดง
+
+5 — Bottleneck & SLA Health Dashboard
+งานตาม Stage + Stage ที่ค้างเยอะสุด (คอขวด), งานเกิน SLA สีแดง
+วัสดุ stock-out ที่ทำให้รอ สีเหลือง
+
+6 — Data Checklist (ถ้ายังขาดข้อมูล)
+
+ไม่ว่าข้อมูลจะพร้อมหรือยัง ให้สร้างระบบออกมาเลยครับ
+• ถ้าข้อมูลพร้อม: ใส่ข้อมูลตัวอย่างที่เหมาะกับธุรกิจนี้
+• ถ้าข้อมูลยังขาด: ใส่ตัวอย่างสมมติ + ส่วน "Data Checklist" บอกว่าต้องหาอะไรก่อน
+[[FMT_TAIL]]`
+  }
+};
+/* --- P5BASE additions for v4 roles (branch / tart / gomoto) --- */
+P5BASE.branch = {
+  honda:`สร้างระบบคุมสาขาสำหรับดีลเลอร์ Honda (CSM) [[FMT_INTRO]] โดยยึดโครงสร้างพื้นฐานนี้เสมอ อ้างอิงข้อมูลธุรกิจจาก Project Description, Instruction และไฟล์ที่ upload ได้เลย
+
+โครงสร้างพื้นฐาน (แต่ละข้อ = 1 Sheet / แท็บ / ส่วน):
+
+1 — Settings
+• เป้าสาขารายเดือน (ขายรถ / service / อะไหล่)
+• รุ่นรถ/สี/ราคา, ค่าบริการ-ค่าแรงมาตรฐาน
+• ทีมสาขา: ชื่อ, ตำแหน่ง (เซล/ช่าง/ธุรการ), quota
+• กะ/เวร: ช่วงเวลา, กำลังคนขั้นต่ำต่อกะ
+
+2 — ยอดขาย + Walk-in (รายวัน)
+Column: วันที่ | walk-in | ลูกค้า | เซล | รุ่น/สี | ราคา | ช่องทางชำระ | ปิดได้? | โน้ต
+ใส่ข้อมูลตัวอย่าง 10 รายการ
+
+3 — After-sales (ศูนย์บริการ + อะไหล่)
+Column: วันที่ | ทะเบียน/ลูกค้า | ประเภทงาน | ค่าแรง | ค่าอะไหล่ | ช่าง | สถานะ
+ใส่ตัวอย่าง 5 รายการ
+
+4 — สต็อก (รถ/อะไหล่)
+Column: รหัส | ชื่อ/รุ่น | คงเหลือ | วันรับเข้า | อายุสต็อก(วัน) | สถานะ (ปกติ/ค้าง/ใกล้ขาด)
+ใส่ตัวอย่าง 8 รายการ
+
+5 — Branch Dashboard (เน้น)
+• การ์ด: ยอดขายสาขา vs เป้า | walk-in conversion | รายได้ after-sales | GP% สาขา
+• By ทีม: ชื่อ | quota | ทำได้ | % | conversion — < 80% สีแดง, ≥ 100% สีเขียว
+• สต็อก: รายการค้าง/ใกล้ขาด ทำสีเตือน (ค้าง = เหลือง/แดง)
+
+6 — Data Checklist (ถ้ายังขาดข้อมูล)
+
+ไม่ว่าข้อมูลจะพร้อมหรือยัง ให้สร้างระบบออกมาเลยครับ
+• ถ้าข้อมูลพร้อม: ใส่ข้อมูลตัวอย่างที่เหมาะกับสาขาดีลเลอร์รถจักรยานยนต์
+• ถ้าข้อมูลยังขาด: ใส่ตัวอย่างสมมติ + ส่วน "Data Checklist" บอกว่าต้องหาอะไรก่อน
+[[FMT_TAIL]]`,
+  sme:`สร้างระบบคุมสาขา (เน้นยอดขาย + ปฏิบัติการหน้าร้าน) [[FMT_INTRO]] โดยยึดโครงสร้างพื้นฐานนี้เสมอ อ้างอิงข้อมูลธุรกิจจาก Project Description, Instruction และไฟล์ที่ upload ได้เลย
+
+โครงสร้างพื้นฐาน (แต่ละข้อ = 1 Sheet / แท็บ / ส่วน):
+
+1 — Settings
+• เป้าสาขารายเดือน (ขาย / บริการหลังการขาย)
+• รายการสินค้า/บริการ + ราคา
+• ทีมสาขา: ชื่อ, ตำแหน่ง, quota
+• กะ/เวร: ช่วงเวลา, กำลังคนขั้นต่ำต่อกะ
+
+2 — ยอดขาย + ลูกค้าเข้าร้าน (รายวัน)
+Column: วันที่ | ลูกค้าเข้าร้าน | ลูกค้า | พนักงานขาย | สินค้า | ราคา | ช่องทางชำระ | ปิดได้? | โน้ต
+ใส่ข้อมูลตัวอย่าง 10 รายการ
+
+3 — บริการหลังการขาย
+Column: วันที่ | ลูกค้า | ประเภทงาน | ค่าบริการ | ค่าสินค้า/อะไหล่ | ผู้ทำ | สถานะ
+ใส่ตัวอย่าง 5 รายการ
+
+4 — สต็อก
+Column: รหัส | ชื่อสินค้า | คงเหลือ | วันรับเข้า | อายุสต็อก(วัน) | สถานะ (ปกติ/ค้าง/ใกล้ขาด)
+ใส่ตัวอย่าง 8 รายการ
+
+5 — Branch Dashboard (เน้น)
+• การ์ด: ยอดขายสาขา vs เป้า | conversion ลูกค้าเข้าร้าน | รายได้บริการหลังการขาย | GP% สาขา
+• By ทีม: ชื่อ | quota | ทำได้ | % | conversion — < 80% สีแดง, ≥ 100% สีเขียว
+• สต็อก: รายการค้าง/ใกล้ขาด ทำสีเตือน
+
+6 — Data Checklist (ถ้ายังขาดข้อมูล)
+
+ไม่ว่าข้อมูลจะพร้อมหรือยัง ให้สร้างระบบออกมาเลยครับ
+• ถ้าข้อมูลพร้อม: ใส่ข้อมูลตัวอย่างที่เหมาะกับสาขาหน้าร้าน
+• ถ้าข้อมูลยังขาด: ใส่ตัวอย่างสมมติ + ส่วน "Data Checklist" บอกว่าต้องหาอะไรก่อน
+[[FMT_TAIL]]`
+};
+P5BASE.tart = {
+  honda:`สร้างระบบ Service Job Tracker สำหรับศูนย์บริการ Tart Motorad (ซ่อมบิ๊กไบค์ BMW/Harley/Bigbike) [[FMT_INTRO]] โดยยึดโครงสร้างพื้นฐานนี้เสมอ อ้างอิงข้อมูลจาก Project Description, Instruction และไฟล์ที่ upload ได้เลย
+
+โครงสร้างพื้นฐาน (แต่ละข้อ = 1 Sheet / แท็บ / ส่วน):
+
+1 — Settings
+• ประเภทงานซ่อม + อัตราค่าแรงมาตรฐาน
+• ยี่ห้อ/รุ่นที่รับ (BMW Motorrad / Harley / Bigbike)
+• ช่าง: ชื่อ, ความเชี่ยวชาญ, ชั่วโมงพร้อมทำงาน/วัน
+• อะไหล่หลัก + ราคา (แยกอะไหล่ในสต็อก vs นำเข้า)
+
+2 — ใบงานซ่อม (Job Sheet)
+Column: วันที่รับ | ลูกค้า | รถ/ยี่ห้อ/รุ่น | อาการ/งาน | ช่าง | ค่าแรง | ค่าอะไหล่ | รวม | สถานะ | วันส่งมอบ | รออะไหล่นำเข้า?
+ใส่ข้อมูลตัวอย่าง 10 รายการ
+
+3 — อะไหล่ / สั่งอะไหล่
+Column: รหัส | อะไหล่ | คงเหลือ | จุดสั่งซื้อ | สั่งนำเข้า(ใบ) | ETA | สถานะ (พร้อม/รอเข้า/ขาด)
+ใส่ตัวอย่าง 8 รายการ
+
+4 — Service Dashboard (เน้น)
+• การ์ด: รายได้ศูนย์ vs เป้า | จำนวนงาน | Average Repair Value | Technician Utilization | Lead Time เฉลี่ย
+• By ช่าง: ชม.ทำงาน | utilization% | รายได้ | rework% — utilization ต่ำกว่าเกณฑ์ = สีแดง
+• คิวงาน/Lead time: งานค้าง, งานรออะไหล่นำเข้า, งานเกิน SLA ทำสีเตือน
+
+5 — Data Checklist (ถ้ายังขาดข้อมูล)
+
+ไม่ว่าข้อมูลจะพร้อมหรือยัง ให้สร้างระบบออกมาเลยครับ
+• ถ้าข้อมูลพร้อม: ใส่ข้อมูลตัวอย่างที่เหมาะกับศูนย์ซ่อมบิ๊กไบค์พรีเมียม
+• ถ้าข้อมูลยังขาด: ใส่ตัวอย่างสมมติ + ส่วน "Data Checklist" บอกว่าต้องหาอะไรก่อน
+[[FMT_TAIL]]`,
+  sme:`สร้างระบบ Service Job Tracker สำหรับศูนย์บริการ Tart Motorad (ซ่อมบิ๊กไบค์ BMW/Harley/Bigbike) [[FMT_INTRO]] โดยยึดโครงสร้างพื้นฐานนี้เสมอ อ้างอิงข้อมูลจาก Project Description, Instruction และไฟล์ที่ upload ได้เลย
+
+โครงสร้างพื้นฐาน (แต่ละข้อ = 1 Sheet / แท็บ / ส่วน):
+
+1 — Settings
+• ประเภทงานซ่อม + อัตราค่าแรงมาตรฐาน
+• ยี่ห้อ/รุ่นที่รับ (BMW Motorrad / Harley / Bigbike)
+• ช่าง: ชื่อ, ความเชี่ยวชาญ, ชั่วโมงพร้อมทำงาน/วัน
+• อะไหล่หลัก + ราคา (แยกอะไหล่ในสต็อก vs นำเข้า)
+
+2 — ใบงานซ่อม (Job Sheet)
+Column: วันที่รับ | ลูกค้า | รถ/ยี่ห้อ/รุ่น | อาการ/งาน | ช่าง | ค่าแรง | ค่าอะไหล่ | รวม | สถานะ | วันส่งมอบ | รออะไหล่นำเข้า?
+ใส่ข้อมูลตัวอย่าง 10 รายการ
+
+3 — อะไหล่ / สั่งอะไหล่
+Column: รหัส | อะไหล่ | คงเหลือ | จุดสั่งซื้อ | สั่งนำเข้า(ใบ) | ETA | สถานะ (พร้อม/รอเข้า/ขาด)
+ใส่ตัวอย่าง 8 รายการ
+
+4 — Service Dashboard (เน้น)
+• การ์ด: รายได้ศูนย์ vs เป้า | จำนวนงาน | Average Repair Value | Technician Utilization | Lead Time เฉลี่ย
+• By ช่าง: ชม.ทำงาน | utilization% | รายได้ | rework% — utilization ต่ำกว่าเกณฑ์ = สีแดง
+• คิวงาน/Lead time: งานค้าง, งานรออะไหล่นำเข้า, งานเกิน SLA ทำสีเตือน
+
+5 — Data Checklist (ถ้ายังขาดข้อมูล)
+
+ไม่ว่าข้อมูลจะพร้อมหรือยัง ให้สร้างระบบออกมาเลยครับ
+• ถ้าข้อมูลพร้อม: ใส่ข้อมูลตัวอย่างที่เหมาะกับศูนย์ซ่อมบิ๊กไบค์พรีเมียม
+• ถ้าข้อมูลยังขาด: ใส่ตัวอย่างสมมติ + ส่วน "Data Checklist" บอกว่าต้องหาอะไรก่อน
+[[FMT_TAIL]]`
+};
+P5BASE.gomoto = {
+  honda:`สร้างระบบ Service Job Tracker สำหรับศูนย์บริการ Go Moto (ซ่อมมอเตอร์ไซค์ในมหาวิทยาลัย เน้นปริมาณ-ไว) [[FMT_INTRO]] โดยยึดโครงสร้างพื้นฐานนี้เสมอ อ้างอิงข้อมูลจาก Project Description, Instruction และไฟล์ที่ upload ได้เลย
+
+โครงสร้างพื้นฐาน (แต่ละข้อ = 1 Sheet / แท็บ / ส่วน):
+
+1 — Settings
+• ประเภทงานซ่อม + อัตราค่าแรง/แพ็กเกจ (เปลี่ยนถ่าย/ยาง/โซ่/เบรก/เครื่อง)
+• ช่าง: ชื่อ, ชั่วโมงทำงาน/วัน
+• อะไหล่หมุนเร็ว + ราคา (ยาง/โซ่/น้ำมัน/ผ้าเบรก)
+• สมาชิก/แพ็กเกจนักศึกษา + ปฏิทินเทอม (เปิด-ปิดเทอม)
+
+2 — ใบงานซ่อม (Job Sheet)
+Column: วันที่ | เวลา รับ-ส่งมอบ | ลูกค้า (นศ./บุคลากร) | รถ/รุ่น | งาน | ช่าง | ค่าแรง | ค่าอะไหล่ | รวม | สมาชิก?
+ใส่ข้อมูลตัวอย่าง 12 รายการ
+
+3 — อะไหล่หมุนเร็ว
+Column: รหัส | อะไหล่ | คงเหลือ | จุดสั่งซื้อ | รอบหมุน | สถานะ (พร้อม/ใกล้หมด/ขาด)
+ใส่ตัวอย่าง 8 รายการ
+
+4 — Service Dashboard (เน้น)
+• การ์ด: รายได้ศูนย์ vs เป้า | จำนวนงาน/วัน | Average Ticket | Turnaround เฉลี่ย | Technician Productivity
+• By ช่าง: จำนวนงาน | รายได้ | เวลาเฉลี่ย/งาน — productivity ต่ำกว่าเกณฑ์ = สีแดง
+• คิวงาน/อะไหล่: ช่วงเวลางานหนา, อะไหล่ใกล้หมด ทำสีเตือน
+
+5 — Data Checklist (ถ้ายังขาดข้อมูล)
+
+ไม่ว่าข้อมูลจะพร้อมหรือยัง ให้สร้างระบบออกมาเลยครับ
+• ถ้าข้อมูลพร้อม: ใส่ข้อมูลตัวอย่างที่เหมาะกับศูนย์ซ่อมในมหาวิทยาลัย
+• ถ้าข้อมูลยังขาด: ใส่ตัวอย่างสมมติ + ส่วน "Data Checklist" บอกว่าต้องหาอะไรก่อน
+[[FMT_TAIL]]`,
+  sme:`สร้างระบบ Service Job Tracker สำหรับศูนย์บริการ Go Moto (ซ่อมมอเตอร์ไซค์ในมหาวิทยาลัย เน้นปริมาณ-ไว) [[FMT_INTRO]] โดยยึดโครงสร้างพื้นฐานนี้เสมอ อ้างอิงข้อมูลจาก Project Description, Instruction และไฟล์ที่ upload ได้เลย
+
+โครงสร้างพื้นฐาน (แต่ละข้อ = 1 Sheet / แท็บ / ส่วน):
+
+1 — Settings
+• ประเภทงานซ่อม + อัตราค่าแรง/แพ็กเกจ (เปลี่ยนถ่าย/ยาง/โซ่/เบรก/เครื่อง)
+• ช่าง: ชื่อ, ชั่วโมงทำงาน/วัน
+• อะไหล่หมุนเร็ว + ราคา (ยาง/โซ่/น้ำมัน/ผ้าเบรก)
+• สมาชิก/แพ็กเกจนักศึกษา + ปฏิทินเทอม (เปิด-ปิดเทอม)
+
+2 — ใบงานซ่อม (Job Sheet)
+Column: วันที่ | เวลา รับ-ส่งมอบ | ลูกค้า (นศ./บุคลากร) | รถ/รุ่น | งาน | ช่าง | ค่าแรง | ค่าอะไหล่ | รวม | สมาชิก?
+ใส่ข้อมูลตัวอย่าง 12 รายการ
+
+3 — อะไหล่หมุนเร็ว
+Column: รหัส | อะไหล่ | คงเหลือ | จุดสั่งซื้อ | รอบหมุน | สถานะ (พร้อม/ใกล้หมด/ขาด)
+ใส่ตัวอย่าง 8 รายการ
+
+4 — Service Dashboard (เน้น)
+• การ์ด: รายได้ศูนย์ vs เป้า | จำนวนงาน/วัน | Average Ticket | Turnaround เฉลี่ย | Technician Productivity
+• By ช่าง: จำนวนงาน | รายได้ | เวลาเฉลี่ย/งาน — productivity ต่ำกว่าเกณฑ์ = สีแดง
+• คิวงาน/อะไหล่: ช่วงเวลางานหนา, อะไหล่ใกล้หมด ทำสีเตือน
+
+5 — Data Checklist (ถ้ายังขาดข้อมูล)
+
+ไม่ว่าข้อมูลจะพร้อมหรือยัง ให้สร้างระบบออกมาเลยครับ
+• ถ้าข้อมูลพร้อม: ใส่ข้อมูลตัวอย่างที่เหมาะกับศูนย์ซ่อมในมหาวิทยาลัย
+• ถ้าข้อมูลยังขาด: ใส่ตัวอย่างสมมติ + ส่วน "Data Checklist" บอกว่าต้องหาอะไรก่อน
+[[FMT_TAIL]]`
+};
+
+function buildP5(r, mode, fmt){
+  var base = (P5BASE[r.key] && P5BASE[r.key][mode]) || '';
+  return base.replace('[[FMT_INTRO]]', FMT_INTRO[fmt]||FMT_INTRO.html)
+             .replace('[[FMT_TAIL]]', FMT_TAIL[fmt]||FMT_TAIL.html);
+}
+
+/* ---------- ROLES data ---------- */
+var ROLES = {};
+
+/* ============ SALES ============ */
+ROLES.sales = {
+  key:'sales', icon:'📈', selLabel:'📈 Sales Manager',
+  projName:'Sales Manager', roleTH:'ผู้จัดการการขาย', skillName:'sales',
+  skillDesc:'Sales Manager ส่วนตัวที่รู้จักธุรกิจของผมโดยเฉพาะ', domainTH:'งานขาย',
+  folderHonda:'CSM-Sales/', folderSme:'Sales-Manager/', dataFileEx:'sales_2026-05.xlsx',
+  projUploadEx:'Excel Pipeline / รายงานยอดขายเก่า / สรุปรายเดือน',
+  refEx:'ราคาขายต่อรุ่น, เป้า KPI ปีนี้, รายชื่อสาขา/ทีม',
+  kicker:'6-Prompt Framework · Sales Manager',
+  titleHTML:'สร้าง <span class="g">AI ผู้จัดการการขาย</span><br>ส่วนตัวของคุณ ทีละ Prompt',
+  leadHonda:'คู่มือ <b>step-by-step</b> เดิน 6 Prompt เพื่อปั้น Claude ให้เป็น <b>Sales Manager AI</b> — ตอนนี้อยู่โหมด <b>🏍 Honda CSM</b> เติม context ดีลเลอร์รถจักรยานยนต์ (จอง → ยื่นไฟแนนซ์ → ออกรถ, Lark CRM/Pancake/NIDS) ให้แล้ว',
+  leadSme:'คู่มือ <b>step-by-step</b> เดิน 6 Prompt เพื่อปั้น Claude ให้เป็น <b>Sales Manager AI</b> — ตอนนี้อยู่โหมด <b>🏢 SME ทั่วไป</b> ใช้ได้กับธุรกิจ SME ทุกแบบ (Proposal → Negotiation → Closed Won/Lost)',
+  dutyTitle:'หน้าที่หลักของ Sales Manager',
+  dutyDescHonda:'สำหรับดีลเลอร์ Honda (CSM) — ดูแลการขายรถจักรยานยนต์หลายสาขา ตั้งแต่ลูกค้าเดินเข้าโชว์รูม จนออกรถ',
+  dutyDescSme:'เวอร์ชันกลางสำหรับ SME ทุกอุตสาหกรรม — ดูแล pipeline, win rate, revenue และความสัมพันธ์ลูกค้า',
+  duties:[
+    {t:'บริหาร Sales Pipeline + Forecast รายเดือน-ไตรมาส'},
+    {t:'ดูแล Sales Team — KPI, commission, coaching'},
+    {t:'วิเคราะห์ Win/Loss และปรับ playbook'},
+    {t:'Account Management — repeat, upsell, cross-sell'},
+    {t:'ปิดดีล — pricing, ดาวน์/ผ่อน, ยื่นไฟแนนซ์', m:'honda'},
+    {t:'ปิดดีลใหญ่ — pricing, negotiation, contract', m:'sme'}
+  ],
+  kpis:[
+    {k:'Revenue vs Target', d:'% achievement ของยอดขาย', t:'≥ 100%'},
+    {k:'Pipeline Coverage', d:'มูลค่า pipeline ÷ Target', t:'≥ 3x'},
+    {k:'Win Rate', d:'% Opportunity ที่ปิดได้', t:'≥ 30%'},
+    {k:'Average Deal Size', dh:'ยอดขายเฉลี่ย/คัน', ds:'ยอดขายเฉลี่ย/ดีล', t:'ตามกลุ่มสินค้า'},
+    {k:'Sales Cycle', dh:'วันเฉลี่ย เดินเข้า → ออกรถ', ds:'วันเฉลี่ย Lead → Close', t:'ลดลง YoY'},
+    {k:'Quota Attainment', d:'% sales ที่ถึง quota', t:'≥ 70%'},
+    {k:'New vs Repeat %', d:'สัดส่วนลูกค้าใหม่ vs เก่า', t:'ตามกลยุทธ์'},
+    {k:'Customer LTV', dh:'มูลค่าตลอดชีพ (ขายซ้ำ + ศูนย์บริการ)', ds:'Lifetime Value', t:'เพิ่มขึ้น YoY'}
+  ],
+  projExHonda:'เช่น "ผู้จัดการฝ่ายขาย Honda CSM"',
+  projExSme:'เช่น "ผู้จัดการฝ่ายขายของบริษัท"',
+  p1LblHonda:'PROMPT 1 — Interview Sales · Honda CSM',
+  p1LblSme:'PROMPT 1 — Interview Sales · SME ทั่วไป',
+  p1Honda:`ผมเป็นผู้จัดการการขายของดีลเลอร์ Honda (CSM) ขายรถจักรยานยนต์ มีหลายสาขา
+ผมกำลังจะให้คุณเป็น Sales Manager ส่วนตัวของผม ก่อนเริ่ม ช่วยสัมภาษณ์ผมเพื่อเก็บข้อมูลครบทุกอย่างที่ต้องใช้สร้าง SKILL.md
+
+กฎการถาม (สำคัญมาก):
+• ถามทีละคำถามเท่านั้น รอผมตอบก่อนแล้วค่อยถามต่อ
+• แต่ละตัวเลือกต้องอยู่คนละบรรทัด ห้ามอยู่บรรทัดเดียวกัน
+• รูปแบบที่ต้องใช้ทุกครั้ง:
+
+คำถามที่ X — [หัวข้อ]
+[คำถาม]
+
+A — [ตัวเลือก]
+B — [ตัวเลือก]
+C — [ตัวเลือก]
+D — [ตัวเลือก]
+0 — ยังไม่รู้ / ไม่แน่ใจ
+E — ไม่มีในนี้
+
+• ทุกคำถามต้องมีตัวเลือก 0 เสมอ
+• ถ้าผมตอบ 0 ให้จดเรื่องนั้นไว้เป็น gap ที่ต้องหาข้อมูลเพิ่ม
+• ถ้าผมตอบ E ให้เสนอตัวเลือกใหม่สำหรับคำถามนั้นเท่านั้น
+• ผมจะตอบแค่ตัวอักษรเดียว เช่น A หรือ 0 หรือ E
+
+ถามให้ครบทั้ง 4 หมวดนี้ (แต่ละหมวดถามทีละข้อ):
+
+หมวด 1 — บริบทงานขายปัจจุบัน: จำนวนเซลต่อสาขา/รวม, โครงสร้างทีม (แบ่งตามสาขา/รุ่นรถ/ลูกค้า), ระบบที่ใช้บันทึกลูกค้า (Lark CRM / Pancake / NIDS / อื่น), ราคาขายเฉลี่ยต่อคัน, รอบการขายเฉลี่ย (เดินเข้า → จอง → ยื่นไฟแนนซ์ → ออกรถ กี่วัน)
+
+หมวด 2 — งานที่อยากให้ Sales AI ช่วยมากที่สุด: เช่น วิเคราะห์ pipeline/คิวจอง / forecast ยอดออกรถ / coaching เซล / win-loss / เทียบยอดรายสาขา / วิเคราะห์รุ่นรถที่ขายดี/ขายยาก
+
+หมวด 3 — สไตล์การตอบที่ชอบ: เช่น Action-oriented / number-driven / มี framework / ชี้ next-best-action ทันที
+
+หมวด 4 — KPI / ตัวเลขที่อยากเน้นดูเป็นพิเศษ: เช่น Pipeline coverage / Win rate / Quota attainment ต่อเซล / ยอดออกรถ vs เป้า / avg deal size ต่อรุ่น / สัดส่วนเงินสด vs ไฟแนนซ์
+
+พอตอบครบทุกหมวดแล้ว ก่อนจบให้สรุปทุกข้อที่ผมตอบ 0 พร้อมแบ่งเป็น 2 กลุ่ม:
+• "ต้องหาก่อนสร้างระบบ" — ถ้าไม่รู้จะทำ Dashboard ถูกต้องไม่ได้ พร้อมบอกว่าหาได้จากไหน
+• "รอได้" — ระบบทำงานได้แม้ยังไม่มีข้อมูลนี้ ค่อยเติมทีหลังได้
+
+เริ่มคำถามแรกได้เลยครับ`,
+  p1Sme:`ผมกำลังจะให้คุณเป็น Sales ส่วนตัวของผม ก่อนเริ่ม ช่วยสัมภาษณ์ผมเพื่อเก็บข้อมูลครบทุกอย่างที่ต้องใช้สร้าง SKILL.md
+
+กฎการถาม (สำคัญมาก):
+• ถามทีละคำถามเท่านั้น รอผมตอบก่อนแล้วค่อยถามต่อ
+• แต่ละตัวเลือกต้องอยู่คนละบรรทัด ห้ามอยู่บรรทัดเดียวกัน
+• รูปแบบที่ต้องใช้ทุกครั้ง:
+
+คำถามที่ X — [หัวข้อ]
+[คำถาม]
+
+A — [ตัวเลือก]
+B — [ตัวเลือก]
+C — [ตัวเลือก]
+D — [ตัวเลือก]
+0 — ยังไม่รู้ / ไม่แน่ใจ
+E — ไม่มีในนี้
+
+• ทุกคำถามต้องมีตัวเลือก 0 เสมอ
+• ถ้าผมตอบ 0 ให้จดเรื่องนั้นไว้เป็น gap ที่ต้องหาข้อมูลเพิ่ม
+• ถ้าผมตอบ E ให้เสนอตัวเลือกใหม่สำหรับคำถามนั้นเท่านั้น
+• ผมจะตอบแค่ตัวอักษรเดียว เช่น A หรือ 0 หรือ E
+
+ถามให้ครบทั้ง 4 หมวดนี้ (แต่ละหมวดถามทีละข้อ):
+
+หมวด 1 — บริบทงาน Sales ปัจจุบัน: จำนวน sales staff, sales structure (territory/product/segment), ระบบ CRM ที่ใช้, average deal size, sales cycle ปัจจุบัน
+
+หมวด 2 — งานที่อยากให้ Sales AI ช่วยมากที่สุด: เช่น วิเคราะห์ pipeline / forecast revenue / coaching sales / win-loss analysis / ทำ proposal / สร้าง sales playbook / วิเคราะห์ customer
+
+หมวด 3 — สไตล์การตอบที่ชอบ: เช่น Action-oriented / number-driven / มี framework (BANT, MEDDIC) / ชี้ next-best-action ทันที
+
+หมวด 4 — KPI / ตัวเลขที่อยากเน้นดูเป็นพิเศษ: เช่น Pipeline coverage / Win rate / Quota attainment / Sales velocity / Avg deal size / LTV
+
+พอตอบครบทุกหมวดแล้ว ก่อนจบให้สรุปทุกข้อที่ผมตอบ 0 พร้อมแบ่งเป็น 2 กลุ่ม:
+• "ต้องหาก่อนสร้างระบบ" — ถ้าไม่รู้จะทำ Dashboard ถูกต้องไม่ได้ พร้อมบอกว่าหาได้จากไหน
+• "รอได้" — ระบบทำงานได้แม้ยังไม่มีข้อมูลนี้ ค่อยเติมทีหลังได้
+
+เริ่มคำถามแรกได้เลยครับ`,
+  p5Title:'Prompt 5 — สร้าง CRM + Interactive Dashboard',
+  p5StepTitle:'สร้าง CRM + Interactive Dashboard (เว็บแอปไฟล์เดียว)',
+  p5StepDesc:'ได้เว็บแอปที่ <b>กรอก/แก้ไข/ลบ</b> ข้อมูลลูกค้าได้ในหน้าเว็บ → เก็บถาวรด้วย localStorage → Dashboard + กราฟอัปเดตทันที → Export/Import ได้',
+  p5LblHonda:'PROMPT 5 — CRM + Dashboard · Honda CSM',
+  p5LblSme:'PROMPT 5 — CRM + Dashboard · SME ทั่วไป',
+  p5Honda:`สร้างระบบ CRM + Interactive Dashboard งานขายสำหรับดีลเลอร์ Honda (CSM) เป็นเว็บแอป HTML ไฟล์เดียวจบ ที่ทั้ง "บันทึกข้อมูล" และ "สรุปเป็น Dashboard" ในตัว เปิดในเบราว์เซอร์ใช้ได้ทันที ไม่ต้องติดตั้งอะไร อ้างอิงข้อมูลธุรกิจจาก Project Description, Instruction และไฟล์ที่ upload ได้เลย
+
+หัวใจของระบบ = บันทึกข้อมูลได้จริงในหน้าเว็บ:
+• มีฟอร์ม เพิ่ม / แก้ไข / ลบ รายการคิวจอง (CRM) ครบทุก field
+• Field: วันที่ │ ลูกค้า │ เบอร์โทร │ เซล │ สาขา │ รุ่นรถ/สี │ ราคา │ Stage │ โอกาสปิด % │ คาดออกรถ │ สถานะ │ โน้ต
+• เก็บข้อมูลถาวรด้วย localStorage — refresh หรือปิดเปิดใหม่แล้วข้อมูลไม่หาย
+• ปุ่ม Export (CSV + JSON) และ Import กลับเข้ามาได้
+
+โครงหน้าจอ (แท็บ/ส่วนในไฟล์เดียว):
+
+1 — Settings (แก้ค่าได้ในเว็บ)
+• Sales Stages: เดินเข้า → สนใจ → จอง → ยื่นไฟแนนซ์ → อนุมัติ → ออกรถ / หลุดจอง
+• รุ่นรถ: Wave, Click, PCX, Scoopy, ADV ฯลฯ (รุ่น/สี/ราคา)
+• Sales Team: ชื่อ, สาขา, quota รายเดือน
+• ช่องทางชำระ: เงินสด / ผ่อนร้าน / ไฟแนนซ์ (กรุงศรี ฯลฯ)
+
+2 — Pipeline / คิวจอง (ตารางบันทึกข้อมูลหลัก)
+• ตารางที่ ค้นหา / กรอง (ตาม Stage, เซล, สาขา) / เรียงลำดับ ได้
+• คลิกแถวเพื่อแก้ไข, เปลี่ยน Stage ได้ในตาราง แล้ว Dashboard อัปเดตทันที
+• ปุ่ม "ออกรถแล้ว / หลุดจอง" ย้ายรายการไป Closed อัตโนมัติ + บันทึกเหตุผล + นับจำนวนวัน (เข้า→ออก)
+
+3 — Dashboard (อัปเดตอัตโนมัติจากข้อมูลที่บันทึก)
+• การ์ด KPI: มูลค่า Pipeline รวม │ จำนวนคิว │ คาดออกรถเดือนนี้ │ Win Rate
+• กราฟ (Chart.js ผ่าน CDN): Pipeline by Stage, ยอดออกรถรายเดือน, ผลงานรายเซล
+• Sales Performance รายเซล: ชื่อ │ Quota │ ออกรถแล้ว │ % │ Pipeline │ Win Rate │ ราคาเฉลี่ย/คัน — % Achievement < 80% สีแดง, ≥ 100% สีเขียว
+• Pipeline Health by Stage: จำนวนคิว │ มูลค่า │ วันเฉลี่ยใน Stage │ % ไป Stage ถัดไป — Coverage = Pipeline ÷ เป้าเดือนนี้, ถ้า < 3x สีเหลือง
+
+ข้อกำหนดทางเทคนิค:
+• HTML/CSS/JS รวมในไฟล์เดียว, vanilla JS, Chart.js ผ่าน CDN
+• ข้อมูลทั้งหมดเก็บใน localStorage + Export/Import (CSV/JSON)
+• ทำสีเตือน แดง/เหลือง/เขียว ตามเกณฑ์ข้างบน
+• ใส่ข้อมูลตัวอย่าง (seed) 10–15 รายการที่เหมาะกับดีลเลอร์รถจักรยานยนต์ พร้อมปุ่ม "ล้างข้อมูลตัวอย่าง"
+• ถ้าข้อมูลยังขาด ให้เพิ่มส่วน "Data Checklist": ข้อมูลที่ต้องหา │ หาได้จากไหน │ หาแล้วหรือยัง
+
+ส่งมาเป็นไฟล์ .html ไฟล์เดียวพร้อมใช้งานได้เลยครับ`,
+  p5Sme:`สร้างระบบ CRM + Interactive Dashboard งานขาย เป็นเว็บแอป HTML ไฟล์เดียวจบ ที่ทั้ง "บันทึกข้อมูล" และ "สรุปเป็น Dashboard" ในตัว เปิดในเบราว์เซอร์ใช้ได้ทันที ไม่ต้องติดตั้งอะไร อ้างอิงข้อมูลธุรกิจจาก Project Description, Instruction และไฟล์ที่ upload ได้เลย
+
+หัวใจของระบบ = บันทึกข้อมูลได้จริงในหน้าเว็บ:
+• มีฟอร์ม เพิ่ม / แก้ไข / ลบ รายการ Opportunity (CRM) ครบทุก field
+• Field: วันที่ │ Customer │ ผู้ติดต่อ/เบอร์ │ Sales Owner │ Product │ Deal Size │ Stage │ Probability % │ Expected Close │ Status │ Note
+• เก็บข้อมูลถาวรด้วย localStorage — refresh หรือปิดเปิดใหม่แล้วข้อมูลไม่หาย
+• ปุ่ม Export (CSV + JSON) และ Import กลับเข้ามาได้
+
+โครงหน้าจอ (แท็บ/ส่วนในไฟล์เดียว):
+
+1 — Settings (แก้ค่าได้ในเว็บ)
+• Sales Stages: Lead → Qualified → Proposal → Negotiation → Closed Won/Lost
+• Products/Services: รายการที่ขาย
+• Sales Team: ชื่อ, territory/segment, quota
+• Customer Segments: SMB/Mid-Market/Enterprise หรือตาม persona
+
+2 — Pipeline / Opportunities (ตารางบันทึกข้อมูลหลัก)
+• ตารางที่ ค้นหา / กรอง (ตาม Stage, Sales, Segment) / เรียงลำดับ ได้
+• คลิกแถวเพื่อแก้ไข, เปลี่ยน Stage ได้ในตาราง แล้ว Dashboard อัปเดตทันที
+• ปุ่ม "Closed Won / Lost" ย้ายรายการไป Closed อัตโนมัติ + บันทึกเหตุผล + นับ Sales Cycle Days
+
+3 — Dashboard (อัปเดตอัตโนมัติจากข้อมูลที่บันทึก)
+• การ์ด KPI: มูลค่า Pipeline รวม │ # Opportunities │ คาดปิดเดือนนี้ │ Win Rate
+• กราฟ (Chart.js ผ่าน CDN): Pipeline by Stage, ยอดปิดรายเดือน, ผลงานรายคน
+• Sales Performance รายคน: ชื่อ │ Quota │ Closed Won │ % │ Pipeline │ Win Rate │ Avg Deal — % Achievement < 80% สีแดง, ≥ 100% สีเขียว
+• Pipeline Health by Stage: # Opps │ Value │ Avg Days in Stage │ Conversion to Next Stage — Coverage = Pipeline ÷ Target ไตรมาสนี้, ถ้า < 3x สีเหลือง
+
+ข้อกำหนดทางเทคนิค:
+• HTML/CSS/JS รวมในไฟล์เดียว, vanilla JS, Chart.js ผ่าน CDN
+• ข้อมูลทั้งหมดเก็บใน localStorage + Export/Import (CSV/JSON)
+• ทำสีเตือน แดง/เหลือง/เขียว ตามเกณฑ์ข้างบน
+• ใส่ข้อมูลตัวอย่าง (seed) 10–15 รายการที่เหมาะกับธุรกิจนี้ พร้อมปุ่ม "ล้างข้อมูลตัวอย่าง"
+• ถ้าข้อมูลยังขาด ให้เพิ่มส่วน "Data Checklist": ข้อมูลที่ต้องหา │ หาได้จากไหน │ หาแล้วหรือยัง
+
+ส่งมาเป็นไฟล์ .html ไฟล์เดียวพร้อมใช้งานได้เลยครับ`,
+  p6LblHonda:'PROMPT 6 — Build Dashboard · Honda CSM',
+  p6LblSme:'PROMPT 6 — Build Dashboard · SME ทั่วไป',
+  p6FilesHonda:'(ยอดออกรถรายเดือน, export คิวจองจาก Lark/Pancake/NIDS, ราคาขายต่อรุ่น)',
+  p6FilesSme:'(pipeline export จาก CRM, closed deals, เป้ารายไตรมาส)',
+  p6Honda:`ผมวางไฟล์ข้อมูลการขายทั้งหมดไว้ใน Project นี้แล้ว (ยอดออกรถ, คิวจอง, ราคาต่อรุ่น ฯลฯ) เดือนที่อยากสรุปคือ [ระบุเดือน]
+
+ช่วยอ่านไฟล์ทั้งหมด แล้วสร้าง Dashboard สรุปภาพรวมให้ผม ประกอบด้วย:
+
+1. การ์ด KPI หลัก: ยอดออกรถ vs เป้า, Win Rate, Pipeline Coverage, ราคาเฉลี่ย/คัน, Quota attainment
+2. กราฟ: ยอดออกรถรายเดือน (trend), สัดส่วนตามรุ่นรถ, ยอดรายสาขา, เงินสด vs ไฟแนนซ์
+3. ตาราง By เซล: quota / ออกรถแล้ว / % / win rate (ทำสีเตือน < 80% แดง, ≥ 100% เขียว)
+4. Pipeline Health: คิวจองตาม Stage + จุดที่ conversion ตก (เช่น จองแล้วไฟแนนซ์ไม่ผ่าน)
+5. Win/Loss: เหตุผลหลักที่หลุดจอง, รุ่นไหนปิดง่าย/ยาก
+
+ข้อกำหนด:
+• อ่านข้อมูลจริงจากไฟล์ที่ผมวางไว้ ถ้าไฟล์ไหนอ่านไม่ได้หรือข้อมูลขาด ให้บอกผมว่าขาดอะไร อย่าเดามั่ว
+• สร้างเป็นไฟล์ HTML ไฟล์เดียวจบ (ใช้ Chart.js ผ่าน CDN) เปิดในเบราว์เซอร์ได้ทันที ฝังข้อมูลจริงจากไฟล์ลงไป
+• ปิดท้ายด้วยสรุป 3 ข้อ: (1) ภาพรวมเดือนนี้ ดี/แย่จุดไหน (2) จุดที่น่าเป็นห่วงที่สุด (3) สิ่งที่ต้องทำก่อน อย่างเดียวที่สำคัญที่สุด
+
+ตอบตรง ชี้ปัญหาก่อนแนะนำทาง`,
+  p6Sme:`ผมวางไฟล์ข้อมูลการขายทั้งหมดไว้ใน Project นี้แล้ว (pipeline, closed deals, เป้า ฯลฯ) เดือนที่อยากสรุปคือ [ระบุเดือน]
+
+ช่วยอ่านไฟล์ทั้งหมด แล้วสร้าง Dashboard สรุปภาพรวมให้ผม ประกอบด้วย:
+
+1. การ์ด KPI หลัก: Revenue vs Target, Win Rate, Pipeline Coverage, Avg Deal Size, Quota attainment
+2. กราฟ: Revenue รายเดือน (trend), สัดส่วนตาม product/segment, ยอดราย sales, pipeline by stage
+3. ตาราง By Sales: quota / closed won / % / win rate (ทำสีเตือน < 80% แดง, ≥ 100% เขียว)
+4. Pipeline Health: opportunities ตาม Stage + จุดที่ conversion ตก
+5. Win/Loss: Top reasons for lost deals, product/segment ไหนปิดง่าย/ยาก
+
+ข้อกำหนด:
+• อ่านข้อมูลจริงจากไฟล์ที่ผมวางไว้ ถ้าไฟล์ไหนอ่านไม่ได้หรือข้อมูลขาด ให้บอกผมว่าขาดอะไร อย่าเดามั่ว
+• สร้างเป็นไฟล์ HTML ไฟล์เดียวจบ (ใช้ Chart.js ผ่าน CDN) เปิดในเบราว์เซอร์ได้ทันที ฝังข้อมูลจริงจากไฟล์ลงไป
+• ปิดท้ายด้วยสรุป 3 ข้อ: (1) ภาพรวมเดือนนี้ ดี/แย่จุดไหน (2) จุดที่น่าเป็นห่วงที่สุด (3) สิ่งที่ต้องทำก่อน อย่างเดียวที่สำคัญที่สุด
+
+ตอบตรง ชี้ปัญหาก่อนแนะนำทาง`,
+  finishTitle:'🎉 Sales AI พร้อมทำงานแล้ว!',
+  finishText:'ตอนนี้คุณมี Claude ที่รู้จัก pipeline, KPI และสไตล์ของคุณ พร้อมระบบงานขาย + Dashboard สรุปจากไฟล์จริง วางไฟล์ใหม่แล้วเดิน Prompt 6 ทุกสิ้นเดือนเพื่อสรุปไว ๆ — ลองใช้เอง 1 สัปดาห์ก่อนเอาเข้าทีมครับ'
+};
+
+/* ============ MARKETING ============ */
+ROLES.marketing = {
+  key:'marketing', icon:'📣', selLabel:'📣 Marketing Manager',
+  projName:'Marketing Manager', roleTH:'ผู้จัดการการตลาด', skillName:'marketing',
+  skillDesc:'Marketing Manager ส่วนตัวที่รู้จักธุรกิจของผมโดยเฉพาะ', domainTH:'งานการตลาด',
+  folderHonda:'CSM-Marketing/', folderSme:'Marketing/', dataFileEx:'marketing_2026-05.xlsx',
+  projUploadEx:'รายงานแคมเปญ / Ads report (Meta/Google/TikTok) / Lead export / สรุปยอด engagement',
+  refEx:'งบการตลาดรายปี, brand guideline, รายชื่อช่องทาง/เพจ',
+  kicker:'6-Prompt Framework · Marketing Manager',
+  titleHTML:'สร้าง <span class="g">AI ผู้จัดการการตลาด</span><br>ส่วนตัวของคุณ ทีละ Prompt',
+  leadHonda:'คู่มือ <b>step-by-step</b> เดิน 6 Prompt เพื่อปั้น Claude ให้เป็น <b>Marketing Manager AI</b> — ตอนนี้อยู่โหมด <b>🏍 Honda CSM</b> เติม context การตลาดดีลเลอร์ (โปรรายเดือน, FB/TikTok/LINE OA, walk-in รายสาขา, อีเวนต์) ให้แล้ว',
+  leadSme:'คู่มือ <b>step-by-step</b> เดิน 6 Prompt เพื่อปั้น Claude ให้เป็น <b>Marketing Manager AI</b> — ตอนนี้อยู่โหมด <b>🏢 SME ทั่วไป</b> ใช้ได้กับธุรกิจ SME ทุกแบบ (Campaign → Leads → CAC → Conversion)',
+  dutyTitle:'หน้าที่หลักของ Marketing Manager',
+  dutyDescHonda:'สำหรับดีลเลอร์ Honda (CSM) — วางแผนโปรโมชั่น/คอนเทนต์ ดึง walk-in เข้าโชว์รูม และส่ง lead ต่อให้ทีมขายแต่ละสาขา',
+  dutyDescSme:'เวอร์ชันกลางสำหรับ SME ทุกอุตสาหกรรม — วางแผนแคมเปญ, วัด ROI ช่องทาง, สร้าง lead และดูแลแบรนด์',
+  duties:[
+    {t:'วางแผน Campaign + งบการตลาดรายเดือน/ไตรมาส'},
+    {t:'สร้าง Lead + ส่งต่อให้ทีมขาย (ติดตาม conversion)'},
+    {t:'วัด ROI / ROAS ของแต่ละช่องทาง'},
+    {t:'ดูแล Content + Social media calendar'},
+    {t:'วิเคราะห์ CAC, funnel, จุดที่คนหลุด'},
+    {t:'คุมโปรโมชั่น/อีเวนต์รายสาขา', m:'honda'},
+    {t:'ดูแล Brand / positioning / messaging', m:'sme'}
+  ],
+  kpis:[
+    {k:'Marketing ROI / ROAS', d:'รายได้ที่เกิด ÷ งบที่ใช้', t:'≥ ตามเป้า'},
+    {k:'Cost per Lead (CPL)', d:'งบ ÷ จำนวน lead', t:'ลดลง'},
+    {k:'Leads / MQL', d:'จำนวน lead ที่สร้างได้', t:'≥ เป้า'},
+    {k:'CAC', d:'ต้นทุนได้ลูกค้า 1 ราย', t:'< LTV/3'},
+    {k:'Conversion Rate', dh:'Lead → walk-in → ปิดการขาย', ds:'Lead → Customer', t:'เพิ่มขึ้น'},
+    {k:'Channel Mix', d:'สัดส่วนยอด/lead ตามช่องทาง', t:'สมดุล'},
+    {k:'Engagement / Reach', d:'ยอดมีส่วนร่วม/การเข้าถึง', t:'โตต่อเนื่อง'},
+    {k:'Spend vs Budget', d:'% งบที่ใช้จริง vs แผน', t:'± 5%'}
+  ],
+  projExHonda:'เช่น "ผู้จัดการการตลาดดีลเลอร์ Honda CSM"',
+  projExSme:'เช่น "ผู้จัดการการตลาดของบริษัท"',
+  p1LblHonda:'PROMPT 1 — Interview Marketing · Honda CSM',
+  p1LblSme:'PROMPT 1 — Interview Marketing · SME ทั่วไป',
+  p1Honda:`ผมเป็นผู้จัดการการตลาดของดีลเลอร์ Honda (CSM) ขายรถจักรยานยนต์ มีหลายสาขา
+ผมกำลังจะให้คุณเป็น Marketing Manager ส่วนตัวของผม ก่อนเริ่ม ช่วยสัมภาษณ์ผมเพื่อเก็บข้อมูลครบทุกอย่างที่ต้องใช้สร้าง SKILL.md
+
+กฎการถาม (สำคัญมาก):
+• ถามทีละคำถามเท่านั้น รอผมตอบก่อนแล้วค่อยถามต่อ
+• แต่ละตัวเลือกต้องอยู่คนละบรรทัด ห้ามอยู่บรรทัดเดียวกัน
+• รูปแบบที่ต้องใช้ทุกครั้ง:
+
+คำถามที่ X — [หัวข้อ]
+[คำถาม]
+
+A — [ตัวเลือก]
+B — [ตัวเลือก]
+C — [ตัวเลือก]
+D — [ตัวเลือก]
+0 — ยังไม่รู้ / ไม่แน่ใจ
+E — ไม่มีในนี้
+
+• ทุกคำถามต้องมีตัวเลือก 0 เสมอ
+• ถ้าผมตอบ 0 ให้จดเรื่องนั้นไว้เป็น gap ที่ต้องหาข้อมูลเพิ่ม
+• ถ้าผมตอบ E ให้เสนอตัวเลือกใหม่สำหรับคำถามนั้นเท่านั้น
+• ผมจะตอบแค่ตัวอักษรเดียว เช่น A หรือ 0 หรือ E
+
+ถามให้ครบทั้ง 4 หมวดนี้ (แต่ละหมวดถามทีละข้อ):
+
+หมวด 1 — บริบทการตลาดปัจจุบัน: ช่องทางที่ใช้ (FB/TikTok/LINE OA/Google/ออฟไลน์), งบต่อเดือน, ใครทำคอนเทนต์/ยิงแอด, วิธีเก็บ lead และส่งต่อให้เซล, มีกี่สาขาที่ต้องดูแลโปร
+
+หมวด 2 — งานที่อยากให้ Marketing AI ช่วยมากที่สุด: เช่น วางแผนแคมเปญ/ปฏิทินคอนเทนต์ / วิเคราะห์ ROI ช่องทาง / สรุปผลแอด / คิดโปรรายเดือน / วิเคราะห์ว่าโปรไหนดึง walk-in ได้จริง
+
+หมวด 3 — สไตล์การตอบที่ชอบ: เช่น Action-oriented / number-driven / มี framework / เสนอไอเดียคอนเทนต์เป็นชุด
+
+หมวด 4 — KPI / ตัวเลขที่อยากเน้นดูเป็นพิเศษ: เช่น ROAS ต่อช่องทาง / Cost per Lead / จำนวน walk-in จากแคมเปญ / Conversion lead→ปิด / งบ vs ผลตอบแทน
+
+พอตอบครบทุกหมวดแล้ว ก่อนจบให้สรุปทุกข้อที่ผมตอบ 0 พร้อมแบ่งเป็น 2 กลุ่ม:
+• "ต้องหาก่อนสร้างระบบ" — ถ้าไม่รู้จะทำ Dashboard ถูกต้องไม่ได้ พร้อมบอกว่าหาได้จากไหน
+• "รอได้" — ระบบทำงานได้แม้ยังไม่มีข้อมูลนี้ ค่อยเติมทีหลังได้
+
+เริ่มคำถามแรกได้เลยครับ`,
+  p1Sme:`ผมกำลังจะให้คุณเป็น Marketing Manager ส่วนตัวของผม ก่อนเริ่ม ช่วยสัมภาษณ์ผมเพื่อเก็บข้อมูลครบทุกอย่างที่ต้องใช้สร้าง SKILL.md
+
+กฎการถาม (สำคัญมาก):
+• ถามทีละคำถามเท่านั้น รอผมตอบก่อนแล้วค่อยถามต่อ
+• แต่ละตัวเลือกต้องอยู่คนละบรรทัด ห้ามอยู่บรรทัดเดียวกัน
+• รูปแบบที่ต้องใช้ทุกครั้ง:
+
+คำถามที่ X — [หัวข้อ]
+[คำถาม]
+
+A — [ตัวเลือก]
+B — [ตัวเลือก]
+C — [ตัวเลือก]
+D — [ตัวเลือก]
+0 — ยังไม่รู้ / ไม่แน่ใจ
+E — ไม่มีในนี้
+
+• ทุกคำถามต้องมีตัวเลือก 0 เสมอ
+• ถ้าผมตอบ 0 ให้จดเรื่องนั้นไว้เป็น gap ที่ต้องหาข้อมูลเพิ่ม
+• ถ้าผมตอบ E ให้เสนอตัวเลือกใหม่สำหรับคำถามนั้นเท่านั้น
+• ผมจะตอบแค่ตัวอักษรเดียว เช่น A หรือ 0 หรือ E
+
+ถามให้ครบทั้ง 4 หมวดนี้ (แต่ละหมวดถามทีละข้อ):
+
+หมวด 1 — บริบทการตลาดปัจจุบัน: ช่องทางที่ใช้, งบต่อเดือน, ขนาดทีม, วิธีเก็บ lead, ระบบ/เครื่องมือที่ใช้ (CRM, ads manager, analytics)
+
+หมวด 2 — งานที่อยากให้ Marketing AI ช่วยมากที่สุด: เช่น campaign planning / content calendar / วิเคราะห์ ROI ช่องทาง / สรุปผลแอด / competitor watch / email/CRM marketing
+
+หมวด 3 — สไตล์การตอบที่ชอบ: เช่น Action-oriented / number-driven / มี framework (AARRR, funnel) / เสนอไอเดียคอนเทนต์เป็นชุด
+
+หมวด 4 — KPI / ตัวเลขที่อยากเน้นดูเป็นพิเศษ: เช่น ROAS / CPL / CAC / Conversion rate / MQL→SQL / LTV:CAC
+
+พอตอบครบทุกหมวดแล้ว ก่อนจบให้สรุปทุกข้อที่ผมตอบ 0 พร้อมแบ่งเป็น 2 กลุ่ม:
+• "ต้องหาก่อนสร้างระบบ" — ถ้าไม่รู้จะทำ Dashboard ถูกต้องไม่ได้ พร้อมบอกว่าหาได้จากไหน
+• "รอได้" — ระบบทำงานได้แม้ยังไม่มีข้อมูลนี้ ค่อยเติมทีหลังได้
+
+เริ่มคำถามแรกได้เลยครับ`,
+  p5Title:'Prompt 5 — สร้าง Campaign Tracker + Marketing Dashboard',
+  p5StepTitle:'สร้าง Campaign Tracker + Dashboard (เว็บแอปไฟล์เดียว)',
+  p5StepDesc:'ได้เว็บแอปที่ <b>กรอก/แก้ไข/ลบ</b> แคมเปญ + งบ + lead ได้ในหน้าเว็บ → เก็บถาวรด้วย localStorage → Dashboard ROI/ROAS อัปเดตทันที → Export/Import ได้',
+  p5LblHonda:'PROMPT 5 — Campaign Tracker · Honda CSM',
+  p5LblSme:'PROMPT 5 — Campaign Tracker · SME ทั่วไป',
+  p5Honda:`สร้างระบบ Campaign Tracker + Interactive Dashboard การตลาดสำหรับดีลเลอร์ Honda (CSM) เป็นเว็บแอป HTML ไฟล์เดียวจบ ที่ทั้ง "บันทึกข้อมูล" และ "สรุปเป็น Dashboard" ในตัว เปิดในเบราว์เซอร์ใช้ได้ทันที ไม่ต้องติดตั้งอะไร อ้างอิงข้อมูลธุรกิจจาก Project Description, Instruction และไฟล์ที่ upload ได้เลย
+
+หัวใจของระบบ = บันทึกข้อมูลได้จริงในหน้าเว็บ:
+• มีฟอร์ม เพิ่ม / แก้ไข / ลบ รายการแคมเปญ ครบทุก field
+• Field: วันที่ │ ชื่อแคมเปญ │ ช่องทาง (FB/TikTok/LINE/Google/ออฟไลน์) │ สาขา │ งบ │ ใช้จริง │ Reach │ Leads │ Walk-in │ ปิดการขาย │ รายได้ │ สถานะ │ โน้ต
+• เก็บข้อมูลถาวรด้วย localStorage — refresh แล้วข้อมูลไม่หาย
+• ปุ่ม Export (CSV + JSON) และ Import กลับเข้ามาได้
+
+โครงหน้าจอ (แท็บ/ส่วนในไฟล์เดียว):
+
+1 — Settings (แก้ค่าได้ในเว็บ)
+• ช่องทาง: Facebook, TikTok, LINE OA, Google, ออฟไลน์/อีเวนต์
+• สาขา: รายชื่อสาขาที่ต้องดูแลโปร
+• งบรายเดือน/ช่องทาง, เป้า lead, เป้า walk-in
+
+2 — Campaigns (ตารางบันทึกข้อมูลหลัก)
+• ตารางที่ ค้นหา / กรอง (ตามช่องทาง, สาขา, สถานะ) / เรียงลำดับ ได้
+• คลิกแถวเพื่อแก้ไข, อัปเดต lead/walk-in/ยอดปิด แล้ว Dashboard อัปเดตทันที
+• คำนวณอัตโนมัติ: CPL = ใช้จริง ÷ Leads, ROAS = รายได้ ÷ ใช้จริง, Conversion = ปิด ÷ Leads
+
+3 — Dashboard (อัปเดตอัตโนมัติจากข้อมูลที่บันทึก)
+• การ์ด KPI: งบใช้รวม │ Leads รวม │ Walk-in รวม │ ROAS รวม
+• กราฟ (Chart.js ผ่าน CDN): งบ vs รายได้ตามช่องทาง, Leads รายเดือน (trend), Walk-in รายสาขา
+• Channel Performance: ช่องทาง │ งบ │ Leads │ CPL │ Walk-in │ ปิด │ ROAS — ROAS < 1 สีแดง, ≥ เป้า สีเขียว
+• Funnel: Reach → Lead → Walk-in → ปิด + จุดที่ conversion ตกมากที่สุด
+
+ข้อกำหนดทางเทคนิค:
+• HTML/CSS/JS รวมในไฟล์เดียว, vanilla JS, Chart.js ผ่าน CDN
+• ข้อมูลทั้งหมดเก็บใน localStorage + Export/Import (CSV/JSON)
+• ทำสีเตือน แดง/เหลือง/เขียว ตามเกณฑ์ข้างบน
+• ใส่ข้อมูลตัวอย่าง (seed) 10–15 แคมเปญที่เหมาะกับดีลเลอร์รถจักรยานยนต์ พร้อมปุ่ม "ล้างข้อมูลตัวอย่าง"
+• ถ้าข้อมูลยังขาด ให้เพิ่มส่วน "Data Checklist": ข้อมูลที่ต้องหา │ หาได้จากไหน │ หาแล้วหรือยัง
+
+ส่งมาเป็นไฟล์ .html ไฟล์เดียวพร้อมใช้งานได้เลยครับ`,
+  p5Sme:`สร้างระบบ Campaign Tracker + Interactive Dashboard การตลาด เป็นเว็บแอป HTML ไฟล์เดียวจบ ที่ทั้ง "บันทึกข้อมูล" และ "สรุปเป็น Dashboard" ในตัว เปิดในเบราว์เซอร์ใช้ได้ทันที ไม่ต้องติดตั้งอะไร อ้างอิงข้อมูลธุรกิจจาก Project Description, Instruction และไฟล์ที่ upload ได้เลย
+
+หัวใจของระบบ = บันทึกข้อมูลได้จริงในหน้าเว็บ:
+• มีฟอร์ม เพิ่ม / แก้ไข / ลบ รายการแคมเปญ ครบทุก field
+• Field: วันที่ │ Campaign │ Channel │ Objective │ Budget │ Spend │ Impressions │ Clicks │ Leads │ Conversions │ Revenue │ Status │ Note
+• เก็บข้อมูลถาวรด้วย localStorage — refresh แล้วข้อมูลไม่หาย
+• ปุ่ม Export (CSV + JSON) และ Import กลับเข้ามาได้
+
+โครงหน้าจอ (แท็บ/ส่วนในไฟล์เดียว):
+
+1 — Settings (แก้ค่าได้ในเว็บ)
+• Channels: Facebook, Google, TikTok, Email, SEO, Offline
+• Objectives: Awareness / Lead Gen / Conversion / Retention
+• งบรายเดือน/ช่องทาง, เป้า lead, เป้า ROAS
+
+2 — Campaigns (ตารางบันทึกข้อมูลหลัก)
+• ตารางที่ ค้นหา / กรอง (ตาม Channel, Objective, Status) / เรียงลำดับ ได้
+• คลิกแถวเพื่อแก้ไข, อัปเดต metrics แล้ว Dashboard อัปเดตทันที
+• คำนวณอัตโนมัติ: CTR, CPL, CPA, ROAS, Conversion rate
+
+3 — Dashboard (อัปเดตอัตโนมัติจากข้อมูลที่บันทึก)
+• การ์ด KPI: Spend รวม │ Leads รวม │ Conversions รวม │ ROAS รวม
+• กราฟ (Chart.js ผ่าน CDN): Spend vs Revenue ตาม channel, Leads รายเดือน (trend), Conversions ตาม channel
+• Channel Performance: Channel │ Spend │ Leads │ CPL │ CPA │ ROAS — ROAS < 1 สีแดง, ≥ เป้า สีเขียว
+• Funnel: Impressions → Clicks → Leads → Conversions + จุดที่ตกมากที่สุด
+
+ข้อกำหนดทางเทคนิค:
+• HTML/CSS/JS รวมในไฟล์เดียว, vanilla JS, Chart.js ผ่าน CDN
+• ข้อมูลทั้งหมดเก็บใน localStorage + Export/Import (CSV/JSON)
+• ทำสีเตือน แดง/เหลือง/เขียว ตามเกณฑ์ข้างบน
+• ใส่ข้อมูลตัวอย่าง (seed) 10–15 แคมเปญที่เหมาะกับธุรกิจนี้ พร้อมปุ่ม "ล้างข้อมูลตัวอย่าง"
+• ถ้าข้อมูลยังขาด ให้เพิ่มส่วน "Data Checklist": ข้อมูลที่ต้องหา │ หาได้จากไหน │ หาแล้วหรือยัง
+
+ส่งมาเป็นไฟล์ .html ไฟล์เดียวพร้อมใช้งานได้เลยครับ`,
+  p6LblHonda:'PROMPT 6 — Build Dashboard · Honda CSM',
+  p6LblSme:'PROMPT 6 — Build Dashboard · SME ทั่วไป',
+  p6FilesHonda:'(ads report Meta/TikTok, lead export, ยอด walk-in/ปิดต่อสาขา)',
+  p6FilesSme:'(ads report, lead export, conversion/revenue ตามช่องทาง)',
+  p6Honda:`ผมวางไฟล์ข้อมูลการตลาดทั้งหมดไว้ใน Project นี้แล้ว (ads report, lead, walk-in, ยอดปิดต่อสาขา ฯลฯ) เดือนที่อยากสรุปคือ [ระบุเดือน]
+
+ช่วยอ่านไฟล์ทั้งหมด แล้วสร้าง Dashboard สรุปภาพรวมให้ผม ประกอบด้วย:
+
+1. การ์ด KPI หลัก: งบใช้ vs แผน, Leads, Walk-in, ROAS รวม, CPL เฉลี่ย
+2. กราฟ: งบ vs รายได้ตามช่องทาง, Leads รายเดือน (trend), Walk-in รายสาขา, สัดส่วน lead ตามช่องทาง
+3. ตาราง By ช่องทาง: งบ / Leads / CPL / Walk-in / ปิด / ROAS (ทำสีเตือน ROAS < 1 แดง, ≥ เป้า เขียว)
+4. Funnel: Reach → Lead → Walk-in → ปิด + จุดที่ conversion ตกมากที่สุด
+5. แคมเปญไหนคุ้ม/ไม่คุ้ม: top 3 ที่ ROAS สูงสุด และ 3 ที่ขาดทุน ควรหยุด
+
+ข้อกำหนด:
+• อ่านข้อมูลจริงจากไฟล์ที่ผมวางไว้ ถ้าไฟล์ไหนอ่านไม่ได้หรือข้อมูลขาด ให้บอกผมว่าขาดอะไร อย่าเดามั่ว
+• สร้างเป็นไฟล์ HTML ไฟล์เดียวจบ (ใช้ Chart.js ผ่าน CDN) เปิดในเบราว์เซอร์ได้ทันที ฝังข้อมูลจริงจากไฟล์ลงไป
+• ปิดท้ายด้วยสรุป 3 ข้อ: (1) ภาพรวมเดือนนี้ ดี/แย่จุดไหน (2) จุดที่น่าเป็นห่วงที่สุด (3) สิ่งที่ต้องทำก่อน อย่างเดียวที่สำคัญที่สุด
+
+ตอบตรง ชี้ปัญหาก่อนแนะนำทาง`,
+  p6Sme:`ผมวางไฟล์ข้อมูลการตลาดทั้งหมดไว้ใน Project นี้แล้ว (ads report, lead, conversion, revenue ฯลฯ) เดือนที่อยากสรุปคือ [ระบุเดือน]
+
+ช่วยอ่านไฟล์ทั้งหมด แล้วสร้าง Dashboard สรุปภาพรวมให้ผม ประกอบด้วย:
+
+1. การ์ด KPI หลัก: Spend vs Budget, Leads, Conversions, ROAS รวม, CAC
+2. กราฟ: Spend vs Revenue ตาม channel, Leads รายเดือน (trend), Conversions ตาม channel, channel mix
+3. ตาราง By Channel: Spend / Leads / CPL / CPA / ROAS (ทำสีเตือน ROAS < 1 แดง, ≥ เป้า เขียว)
+4. Funnel: Impressions → Clicks → Leads → Conversions + จุดที่ตกมากที่สุด
+5. แคมเปญไหนคุ้ม/ไม่คุ้ม: top 3 ROAS สูงสุด และ 3 ที่ขาดทุน ควรหยุด
+
+ข้อกำหนด:
+• อ่านข้อมูลจริงจากไฟล์ที่ผมวางไว้ ถ้าไฟล์ไหนอ่านไม่ได้หรือข้อมูลขาด ให้บอกผมว่าขาดอะไร อย่าเดามั่ว
+• สร้างเป็นไฟล์ HTML ไฟล์เดียวจบ (ใช้ Chart.js ผ่าน CDN) เปิดในเบราว์เซอร์ได้ทันที ฝังข้อมูลจริงจากไฟล์ลงไป
+• ปิดท้ายด้วยสรุป 3 ข้อ: (1) ภาพรวมเดือนนี้ ดี/แย่จุดไหน (2) จุดที่น่าเป็นห่วงที่สุด (3) สิ่งที่ต้องทำก่อน อย่างเดียวที่สำคัญที่สุด
+
+ตอบตรง ชี้ปัญหาก่อนแนะนำทาง`,
+  finishTitle:'🎉 Marketing AI พร้อมทำงานแล้ว!',
+  finishText:'ตอนนี้คุณมี Claude ที่รู้จักช่องทาง, งบ, KPI และสไตล์ของคุณ พร้อม Campaign Tracker + Dashboard ROI สรุปจากไฟล์จริง วางไฟล์ใหม่แล้วเดิน Prompt 6 ทุกสิ้นเดือนเพื่อสรุปไว ๆ — ลองใช้เอง 1 สัปดาห์ก่อนเอาเข้าทีมครับ'
+};
+
+/* expose for the rest (other roles appended below) */
+window.__SME = { ROLES:ROLES, buildP2:buildP2, buildP3:buildP3, buildP4:buildP4, buildP61:buildP61 };
+
+/* ============ FINANCE / ACCOUNTING ============ */
+ROLES.finance = {
+  key:'finance', icon:'💰', selLabel:'💰 Finance / Accounting',
+  projName:'Finance Manager', roleTH:'ผู้จัดการการเงิน/บัญชี', skillName:'finance',
+  skillDesc:'Finance/Accounting Manager ส่วนตัวที่รู้จักธุรกิจของผมโดยเฉพาะ', domainTH:'งานการเงิน/บัญชี',
+  folderHonda:'CSM-Finance/', folderSme:'Finance/', dataFileEx:'finance_2026-05.xlsx',
+  projUploadEx:'งบการเงิน / รายงาน AR-AP / statement ธนาคาร / สรุปกระแสเงินสด / P&L รายสาขา',
+  refEx:'งบประมาณรายปี, ผังบัญชี (chart of accounts), เงื่อนไขเครดิตลูกค้า/คู่ค้า',
+  kicker:'6-Prompt Framework · Finance Manager',
+  titleHTML:'สร้าง <span class="g">AI ผู้จัดการการเงิน</span><br>ส่วนตัวของคุณ ทีละ Prompt',
+  leadHonda:'คู่มือ <b>step-by-step</b> เดิน 6 Prompt เพื่อปั้น Claude ให้เป็น <b>Finance Manager AI</b> — ตอนนี้อยู่โหมด <b>🏍 Honda CSM</b> เติม context การเงินดีลเลอร์ (เงินดาวน์ค้าง, ไฟแนนซ์รับเงิน, stock financing, P&L รายสาขา) ให้แล้ว',
+  leadSme:'คู่มือ <b>step-by-step</b> เดิน 6 Prompt เพื่อปั้น Claude ให้เป็น <b>Finance Manager AI</b> — ตอนนี้อยู่โหมด <b>🏢 SME ทั่วไป</b> ใช้ได้กับธุรกิจ SME ทุกแบบ (Cash flow → AR/AP → P&L → Variance)',
+  dutyTitle:'หน้าที่หลักของ Finance / Accounting Manager',
+  dutyDescHonda:'สำหรับดีลเลอร์ Honda (CSM) — คุมกระแสเงินสดหลายสาขา ติดตามเงินดาวน์ค้าง/ไฟแนนซ์รับเงิน และปิดงบรายเดือน',
+  dutyDescSme:'เวอร์ชันกลางสำหรับ SME ทุกอุตสาหกรรม — ดูแล cash flow, AR/AP, ปิดงบ, P&L และ variance',
+  duties:[
+    {t:'ทำ Cash Flow + Forecast รายเดือน'},
+    {t:'ติดตาม AR/AP Aging — เก็บหนี้ / จ่ายหนี้'},
+    {t:'ปิดงบรายเดือน + P&L รายสาขา/รายธุรกิจ'},
+    {t:'Bank Reconciliation ทุกบัญชี'},
+    {t:'Budget vs Actual + วิเคราะห์ variance'},
+    {t:'ตามเงินดาวน์ค้าง / ไฟแนนซ์รับเงิน / stock financing', m:'honda'},
+    {t:'บริหาร Working Capital + วงเงินกู้', m:'sme'}
+  ],
+  kpis:[
+    {k:'Cash on hand / Runway', d:'เงินสดคงเหลือ + กี่เดือนที่อยู่ได้', t:'≥ 3 เดือน'},
+    {k:'AR Aging / DSO', d:'วันเฉลี่ยกว่าจะเก็บเงินได้', t:'ลดลง'},
+    {k:'AP Aging / DPO', d:'วันเฉลี่ยกว่าจะจ่ายเจ้าหนี้', t:'ตามเงื่อนไข'},
+    {k:'Gross / Net Margin', d:'% กำไรขั้นต้น / สุทธิ', t:'≥ เป้า'},
+    {k:'Budget Variance', d:'ผลต่าง จริง vs งบ', t:'± 5%'},
+    {k:'Current Ratio', d:'สินทรัพย์หมุนเวียน ÷ หนี้สินหมุนเวียน', t:'≥ 1.5'},
+    {k:'Revenue vs Target', d:'% achievement ของยอดขาย', t:'≥ 100%'},
+    {k:'Overdue / Bad Debt', dh:'เงินดาวน์ค้าง + หนี้เกินกำหนด', ds:'AR เกินกำหนด + หนี้สูญ', t:'ลดลง'}
+  ],
+  projExHonda:'เช่น "ผู้จัดการการเงินดีลเลอร์ Honda CSM"',
+  projExSme:'เช่น "ผู้จัดการการเงินของบริษัท"',
+  p1LblHonda:'PROMPT 1 — Interview Finance · Honda CSM',
+  p1LblSme:'PROMPT 1 — Interview Finance · SME ทั่วไป',
+  p1Honda:`ผมเป็นผู้จัดการการเงิน/บัญชีของดีลเลอร์ Honda (CSM) ขายรถจักรยานยนต์ มีหลายสาขา
+ผมกำลังจะให้คุณเป็น Finance Manager ส่วนตัวของผม ก่อนเริ่ม ช่วยสัมภาษณ์ผมเพื่อเก็บข้อมูลครบทุกอย่างที่ต้องใช้สร้าง SKILL.md
+
+กฎการถาม (สำคัญมาก):
+• ถามทีละคำถามเท่านั้น รอผมตอบก่อนแล้วค่อยถามต่อ
+• แต่ละตัวเลือกต้องอยู่คนละบรรทัด ห้ามอยู่บรรทัดเดียวกัน
+• รูปแบบที่ต้องใช้ทุกครั้ง:
+
+คำถามที่ X — [หัวข้อ]
+[คำถาม]
+
+A — [ตัวเลือก]
+B — [ตัวเลือก]
+C — [ตัวเลือก]
+D — [ตัวเลือก]
+0 — ยังไม่รู้ / ไม่แน่ใจ
+E — ไม่มีในนี้
+
+• ทุกคำถามต้องมีตัวเลือก 0 เสมอ
+• ถ้าผมตอบ 0 ให้จดเรื่องนั้นไว้เป็น gap ที่ต้องหาข้อมูลเพิ่ม
+• ถ้าผมตอบ E ให้เสนอตัวเลือกใหม่สำหรับคำถามนั้นเท่านั้น
+• ผมจะตอบแค่ตัวอักษรเดียว เช่น A หรือ 0 หรือ E
+
+ถามให้ครบทั้ง 4 หมวดนี้ (แต่ละหมวดถามทีละข้อ):
+
+หมวด 1 — บริบทการเงินปัจจุบัน: โปรแกรมบัญชีที่ใช้ (Peak/Express/อื่น), จำนวนบัญชีธนาคาร, มีกี่สาขาที่ต้องแยก P&L, รอบปิดงบ (รายเดือน/ไตรมาส), ใครทำบัญชี/การเงิน
+
+หมวด 2 — งานที่อยากให้ Finance AI ช่วยมากที่สุด: เช่น cash flow forecast / AR-AP aging / bank reconciliation / P&L รายสาขา / variance งบ vs จริง / ติดตามเงินดาวน์ค้าง
+
+หมวด 3 — สไตล์การตอบที่ชอบ: เช่น Action-oriented / number-driven / ชี้ตัวเลขผิดปกติก่อน / มี framework
+
+หมวด 4 — KPI / ตัวเลขที่อยากเน้นดูเป็นพิเศษ: เช่น Cash runway / DSO / DPO / Gross margin รายสาขา / เงินดาวน์ค้างรับ / stock financing cost
+
+พอตอบครบทุกหมวดแล้ว ก่อนจบให้สรุปทุกข้อที่ผมตอบ 0 พร้อมแบ่งเป็น 2 กลุ่ม:
+• "ต้องหาก่อนสร้างระบบ" — ถ้าไม่รู้จะทำ Dashboard ถูกต้องไม่ได้ พร้อมบอกว่าหาได้จากไหน
+• "รอได้" — ระบบทำงานได้แม้ยังไม่มีข้อมูลนี้ ค่อยเติมทีหลังได้
+
+เริ่มคำถามแรกได้เลยครับ`,
+  p1Sme:`ผมกำลังจะให้คุณเป็น Finance Manager ส่วนตัวของผม ก่อนเริ่ม ช่วยสัมภาษณ์ผมเพื่อเก็บข้อมูลครบทุกอย่างที่ต้องใช้สร้าง SKILL.md
+
+กฎการถาม (สำคัญมาก):
+• ถามทีละคำถามเท่านั้น รอผมตอบก่อนแล้วค่อยถามต่อ
+• แต่ละตัวเลือกต้องอยู่คนละบรรทัด ห้ามอยู่บรรทัดเดียวกัน
+• รูปแบบที่ต้องใช้ทุกครั้ง:
+
+คำถามที่ X — [หัวข้อ]
+[คำถาม]
+
+A — [ตัวเลือก]
+B — [ตัวเลือก]
+C — [ตัวเลือก]
+D — [ตัวเลือก]
+0 — ยังไม่รู้ / ไม่แน่ใจ
+E — ไม่มีในนี้
+
+• ทุกคำถามต้องมีตัวเลือก 0 เสมอ
+• ถ้าผมตอบ 0 ให้จดเรื่องนั้นไว้เป็น gap ที่ต้องหาข้อมูลเพิ่ม
+• ถ้าผมตอบ E ให้เสนอตัวเลือกใหม่สำหรับคำถามนั้นเท่านั้น
+• ผมจะตอบแค่ตัวอักษรเดียว เช่น A หรือ 0 หรือ E
+
+ถามให้ครบทั้ง 4 หมวดนี้ (แต่ละหมวดถามทีละข้อ):
+
+หมวด 1 — บริบทการเงินปัจจุบัน: โปรแกรมบัญชีที่ใช้, จำนวนบัญชีธนาคาร, โครงสร้างธุรกิจ (กี่ BU/สาขา), รอบปิดงบ, ขนาดทีมการเงิน
+
+หมวด 2 — งานที่อยากให้ Finance AI ช่วยมากที่สุด: เช่น cash flow forecast / AR-AP aging / bank reconciliation / P&L by unit / budget variance / financial ratios
+
+หมวด 3 — สไตล์การตอบที่ชอบ: เช่น Action-oriented / number-driven / ชี้ตัวเลขผิดปกติก่อน / มี framework
+
+หมวด 4 — KPI / ตัวเลขที่อยากเน้นดูเป็นพิเศษ: เช่น Cash runway / DSO / DPO / Gross & Net margin / Current ratio / Working capital
+
+พอตอบครบทุกหมวดแล้ว ก่อนจบให้สรุปทุกข้อที่ผมตอบ 0 พร้อมแบ่งเป็น 2 กลุ่ม:
+• "ต้องหาก่อนสร้างระบบ" — ถ้าไม่รู้จะทำ Dashboard ถูกต้องไม่ได้ พร้อมบอกว่าหาได้จากไหน
+• "รอได้" — ระบบทำงานได้แม้ยังไม่มีข้อมูลนี้ ค่อยเติมทีหลังได้
+
+เริ่มคำถามแรกได้เลยครับ`,
+  p5Title:'Prompt 5 — สร้าง Cash/AR-AP Tracker + Finance Dashboard',
+  p5StepTitle:'สร้าง Finance Tracker + Dashboard (เว็บแอปไฟล์เดียว)',
+  p5StepDesc:'ได้เว็บแอปที่ <b>กรอก/แก้ไข/ลบ</b> รายรับ-รายจ่าย + AR/AP ได้ในหน้าเว็บ → เก็บถาวรด้วย localStorage → Dashboard กระแสเงินสด + Aging อัปเดตทันที → Export/Import ได้',
+  p5LblHonda:'PROMPT 5 — Finance Tracker · Honda CSM',
+  p5LblSme:'PROMPT 5 — Finance Tracker · SME ทั่วไป',
+  p5Honda:`สร้างระบบ Cash & AR/AP Tracker + Interactive Dashboard การเงินสำหรับดีลเลอร์ Honda (CSM) เป็นเว็บแอป HTML ไฟล์เดียวจบ ที่ทั้ง "บันทึกข้อมูล" และ "สรุปเป็น Dashboard" ในตัว เปิดในเบราว์เซอร์ใช้ได้ทันที ไม่ต้องติดตั้งอะไร อ้างอิงข้อมูลธุรกิจจาก Project Description, Instruction และไฟล์ที่ upload ได้เลย
+
+หัวใจของระบบ = บันทึกข้อมูลได้จริงในหน้าเว็บ:
+• มีฟอร์ม เพิ่ม / แก้ไข / ลบ รายการเงิน ครบทุก field
+• Field: วันที่ │ ประเภท (รับ/จ่าย) │ หมวด │ คู่ค้า/ลูกค้า │ สาขา │ จำนวนเงิน │ ครบกำหนด │ สถานะ (ค้าง/รับแล้ว/จ่ายแล้ว) │ ช่องทาง (เงินสด/โอน/ไฟแนนซ์) │ โน้ต
+• เก็บข้อมูลถาวรด้วย localStorage — refresh แล้วข้อมูลไม่หาย
+• ปุ่ม Export (CSV + JSON) และ Import กลับเข้ามาได้
+
+โครงหน้าจอ (แท็บ/ส่วนในไฟล์เดียว):
+
+1 — Settings (แก้ค่าได้ในเว็บ)
+• หมวดรายรับ/รายจ่าย, สาขา, บัญชีธนาคาร
+• เงื่อนไขเครดิต (กี่วัน) ของลูกค้า/คู่ค้า, เป้า cash runway
+
+2 — Transactions / AR-AP (ตารางบันทึกข้อมูลหลัก)
+• ตารางที่ ค้นหา / กรอง (ตามประเภท, สถานะ, สาขา) / เรียงลำดับ ได้
+• คลิกแถวเพื่อแก้ไข, เปลี่ยนสถานะ "รับแล้ว/จ่ายแล้ว" แล้ว Dashboard อัปเดตทันที
+• คำนวณ Aging อัตโนมัติจากวันครบกำหนด: 0-30 / 31-60 / 61-90 / >90 วัน
+
+3 — Dashboard (อัปเดตอัตโนมัติจากข้อมูลที่บันทึก)
+• การ์ด KPI: เงินสดคงเหลือ │ AR ค้างรับรวม │ AP ค้างจ่ายรวม │ Net Cash Flow เดือนนี้
+• กราฟ (Chart.js ผ่าน CDN): กระแสเงินสดรายเดือน (รับ vs จ่าย), AR Aging, AP Aging, รายรับ/จ่ายตามหมวด
+• P&L by สาขา: สาขา │ รายรับ │ รายจ่าย │ กำไร │ % margin — margin < เป้า สีแดง
+• Aging Health: ยอดเกิน 90 วัน สีแดง, runway < 3 เดือน สีเหลือง
+
+ข้อกำหนดทางเทคนิค:
+• HTML/CSS/JS รวมในไฟล์เดียว, vanilla JS, Chart.js ผ่าน CDN
+• ข้อมูลทั้งหมดเก็บใน localStorage + Export/Import (CSV/JSON)
+• ทำสีเตือน แดง/เหลือง/เขียว ตามเกณฑ์ข้างบน
+• ใส่ข้อมูลตัวอย่าง (seed) 12–18 รายการที่เหมาะกับดีลเลอร์รถจักรยานยนต์ พร้อมปุ่ม "ล้างข้อมูลตัวอย่าง"
+• ถ้าข้อมูลยังขาด ให้เพิ่มส่วน "Data Checklist": ข้อมูลที่ต้องหา │ หาได้จากไหน │ หาแล้วหรือยัง
+
+ส่งมาเป็นไฟล์ .html ไฟล์เดียวพร้อมใช้งานได้เลยครับ`,
+  p5Sme:`สร้างระบบ Cash & AR/AP Tracker + Interactive Dashboard การเงิน เป็นเว็บแอป HTML ไฟล์เดียวจบ ที่ทั้ง "บันทึกข้อมูล" และ "สรุปเป็น Dashboard" ในตัว เปิดในเบราว์เซอร์ใช้ได้ทันที ไม่ต้องติดตั้งอะไร อ้างอิงข้อมูลธุรกิจจาก Project Description, Instruction และไฟล์ที่ upload ได้เลย
+
+หัวใจของระบบ = บันทึกข้อมูลได้จริงในหน้าเว็บ:
+• มีฟอร์ม เพิ่ม / แก้ไข / ลบ รายการเงิน ครบทุก field
+• Field: วันที่ │ Type (รับ/จ่าย) │ Category │ Counterparty │ Business Unit │ Amount │ Due Date │ Status (Open/Paid) │ Method │ Note
+• เก็บข้อมูลถาวรด้วย localStorage — refresh แล้วข้อมูลไม่หาย
+• ปุ่ม Export (CSV + JSON) และ Import กลับเข้ามาได้
+
+โครงหน้าจอ (แท็บ/ส่วนในไฟล์เดียว):
+
+1 — Settings (แก้ค่าได้ในเว็บ)
+• หมวดรายรับ/รายจ่าย, Business Units, บัญชีธนาคาร
+• เงื่อนไขเครดิตลูกค้า/คู่ค้า, เป้า cash runway
+
+2 — Transactions / AR-AP (ตารางบันทึกข้อมูลหลัก)
+• ตารางที่ ค้นหา / กรอง (ตาม Type, Status, Unit) / เรียงลำดับ ได้
+• คลิกแถวเพื่อแก้ไข, เปลี่ยนสถานะ Paid แล้ว Dashboard อัปเดตทันที
+• คำนวณ Aging อัตโนมัติ: 0-30 / 31-60 / 61-90 / >90 วัน
+
+3 — Dashboard (อัปเดตอัตโนมัติจากข้อมูลที่บันทึก)
+• การ์ด KPI: Cash on hand │ Total AR │ Total AP │ Net Cash Flow เดือนนี้
+• กราฟ (Chart.js ผ่าน CDN): Cash flow รายเดือน (in vs out), AR Aging, AP Aging, รายรับ/จ่ายตามหมวด
+• P&L by Unit: Unit │ Revenue │ Cost │ Profit │ % margin — margin < เป้า สีแดง
+• Aging Health: ยอดเกิน 90 วัน สีแดง, runway < 3 เดือน สีเหลือง
+
+ข้อกำหนดทางเทคนิค:
+• HTML/CSS/JS รวมในไฟล์เดียว, vanilla JS, Chart.js ผ่าน CDN
+• ข้อมูลทั้งหมดเก็บใน localStorage + Export/Import (CSV/JSON)
+• ทำสีเตือน แดง/เหลือง/เขียว ตามเกณฑ์ข้างบน
+• ใส่ข้อมูลตัวอย่าง (seed) 12–18 รายการที่เหมาะกับธุรกิจนี้ พร้อมปุ่ม "ล้างข้อมูลตัวอย่าง"
+• ถ้าข้อมูลยังขาด ให้เพิ่มส่วน "Data Checklist": ข้อมูลที่ต้องหา │ หาได้จากไหน │ หาแล้วหรือยัง
+
+ส่งมาเป็นไฟล์ .html ไฟล์เดียวพร้อมใช้งานได้เลยครับ`,
+  p6LblHonda:'PROMPT 6 — Build Dashboard · Honda CSM',
+  p6LblSme:'PROMPT 6 — Build Dashboard · SME ทั่วไป',
+  p6FilesHonda:'(statement ธนาคาร, AR-AP, P&L รายสาขา, เงินดาวน์ค้าง)',
+  p6FilesSme:'(statement ธนาคาร, AR-AP, P&L, งบประมาณ)',
+  p6Honda:`ผมวางไฟล์ข้อมูลการเงินทั้งหมดไว้ใน Project นี้แล้ว (statement, AR-AP, P&L รายสาขา, เงินดาวน์ค้าง ฯลฯ) เดือนที่อยากสรุปคือ [ระบุเดือน]
+
+ช่วยอ่านไฟล์ทั้งหมด แล้วสร้าง Dashboard สรุปภาพรวมให้ผม ประกอบด้วย:
+
+1. การ์ด KPI หลัก: เงินสดคงเหลือ + runway, Net cash flow, AR ค้างรับ, AP ค้างจ่าย, Gross margin
+2. กราฟ: กระแสเงินสดรายเดือน (รับ vs จ่าย), AR Aging, AP Aging, P&L รายสาขา
+3. ตาราง By สาขา: รายรับ / รายจ่าย / กำไร / % margin (ทำสีเตือน margin < เป้า แดง)
+4. Aging: ลูกหนี้/เงินดาวน์ค้างเกิน 90 วัน + ใครค้างเยอะสุด ควรตามก่อน
+5. Variance: จริง vs งบประมาณ หมวดไหนเกิน/ขาดผิดปกติ
+
+ข้อกำหนด:
+• อ่านข้อมูลจริงจากไฟล์ที่ผมวางไว้ ถ้าไฟล์ไหนอ่านไม่ได้หรือข้อมูลขาด ให้บอกผมว่าขาดอะไร อย่าเดามั่ว
+• สร้างเป็นไฟล์ HTML ไฟล์เดียวจบ (ใช้ Chart.js ผ่าน CDN) เปิดในเบราว์เซอร์ได้ทันที ฝังข้อมูลจริงจากไฟล์ลงไป
+• ปิดท้ายด้วยสรุป 3 ข้อ: (1) ภาพรวมเดือนนี้ ดี/แย่จุดไหน (2) จุดที่น่าเป็นห่วงที่สุด (3) สิ่งที่ต้องทำก่อน อย่างเดียวที่สำคัญที่สุด
+
+ตอบตรง ชี้ปัญหาก่อนแนะนำทาง`,
+  p6Sme:`ผมวางไฟล์ข้อมูลการเงินทั้งหมดไว้ใน Project นี้แล้ว (statement, AR-AP, P&L, งบประมาณ ฯลฯ) เดือนที่อยากสรุปคือ [ระบุเดือน]
+
+ช่วยอ่านไฟล์ทั้งหมด แล้วสร้าง Dashboard สรุปภาพรวมให้ผม ประกอบด้วย:
+
+1. การ์ด KPI หลัก: Cash on hand + runway, Net cash flow, Total AR, Total AP, Gross margin
+2. กราฟ: Cash flow รายเดือน (in vs out), AR Aging, AP Aging, P&L by unit
+3. ตาราง By Unit: Revenue / Cost / Profit / % margin (ทำสีเตือน margin < เป้า แดง)
+4. Aging: ลูกหนี้เกิน 90 วัน + ใครค้างเยอะสุด ควรตามก่อน
+5. Variance: Actual vs Budget หมวดไหนเกิน/ขาดผิดปกติ
+
+ข้อกำหนด:
+• อ่านข้อมูลจริงจากไฟล์ที่ผมวางไว้ ถ้าไฟล์ไหนอ่านไม่ได้หรือข้อมูลขาด ให้บอกผมว่าขาดอะไร อย่าเดามั่ว
+• สร้างเป็นไฟล์ HTML ไฟล์เดียวจบ (ใช้ Chart.js ผ่าน CDN) เปิดในเบราว์เซอร์ได้ทันที ฝังข้อมูลจริงจากไฟล์ลงไป
+• ปิดท้ายด้วยสรุป 3 ข้อ: (1) ภาพรวมเดือนนี้ ดี/แย่จุดไหน (2) จุดที่น่าเป็นห่วงที่สุด (3) สิ่งที่ต้องทำก่อน อย่างเดียวที่สำคัญที่สุด
+
+ตอบตรง ชี้ปัญหาก่อนแนะนำทาง`,
+  finishTitle:'🎉 Finance AI พร้อมทำงานแล้ว!',
+  finishText:'ตอนนี้คุณมี Claude ที่รู้จักกระแสเงินสด, AR/AP, KPI และสไตล์ของคุณ พร้อม Finance Tracker + Dashboard สรุปจากไฟล์จริง วางไฟล์ใหม่แล้วเดิน Prompt 6 ทุกสิ้นเดือนเพื่อปิดงบไว ๆ — ลองใช้เอง 1 สัปดาห์ก่อนเอาเข้าทีมครับ'
+};
+
+/* ============ HR ============ */
+ROLES.hr = {
+  key:'hr', icon:'👥', selLabel:'👥 HR Manager',
+  projName:'HR Manager', roleTH:'ผู้จัดการฝ่ายบุคคล', skillName:'hr',
+  skillDesc:'HR Manager ส่วนตัวที่รู้จักธุรกิจของผมโดยเฉพาะ', domainTH:'งานบุคคล (HR)',
+  folderHonda:'CSM-HR/', folderSme:'HR/', dataFileEx:'hr_2026-05.xlsx',
+  projUploadEx:'Payroll report / ทะเบียนพนักงาน / รายงานขาด-ลา-มาสาย / OT / ใบสมัครงาน',
+  refEx:'โครงสร้างเงินเดือน, org chart, นโยบาย HR/สวัสดิการ',
+  kicker:'6-Prompt Framework · HR Manager',
+  titleHTML:'สร้าง <span class="g">AI ผู้จัดการฝ่ายบุคคล</span><br>ส่วนตัวของคุณ ทีละ Prompt',
+  leadHonda:'คู่มือ <b>step-by-step</b> เดิน 6 Prompt เพื่อปั้น Claude ให้เป็น <b>HR Manager AI</b> — ตอนนี้อยู่โหมด <b>🏍 Honda CSM</b> เติม context HR ดีลเลอร์ (จัดคนรายสาขา, ค่าคอมเซล/ช่าง, payroll หลายสาขา) ให้แล้ว',
+  leadSme:'คู่มือ <b>step-by-step</b> เดิน 6 Prompt เพื่อปั้น Claude ให้เป็น <b>HR Manager AI</b> — ตอนนี้อยู่โหมด <b>🏢 SME ทั่วไป</b> ใช้ได้กับธุรกิจ SME ทุกแบบ (Payroll → Turnover → Recruitment)',
+  dutyTitle:'หน้าที่หลักของ HR Manager',
+  dutyDescHonda:'สำหรับดีลเลอร์ Honda (CSM) — คุม payroll + คนหลายสาขา ติดตามการลาออก/ขาด-ลา-มาสาย และค่าคอมเซล/ช่าง',
+  dutyDescSme:'เวอร์ชันกลางสำหรับ SME ทุกอุตสาหกรรม — ดูแล payroll, headcount, turnover, attendance และ recruitment',
+  duties:[
+    {t:'คุม Payroll + ค่าใช้จ่ายบุคลากรรายเดือน'},
+    {t:'ติดตาม Headcount / Turnover / อัตราลาออก'},
+    {t:'ดูแล OT, ขาด-ลา-มาสาย, เวลาทำงาน'},
+    {t:'Recruitment pipeline — สรรหา/สัมภาษณ์/onboard'},
+    {t:'ประเมินผล / KPI พนักงาน / training'},
+    {t:'จัดคนรายสาขา + คำนวณค่าคอมเซล/ช่าง', m:'honda'},
+    {t:'วางแผนกำลังคน + โครงสร้างองค์กร', m:'sme'}
+  ],
+  kpis:[
+    {k:'Turnover Rate', d:'% ลาออกต่อปี', t:'≤ เป้า'},
+    {k:'Headcount vs Plan', d:'จำนวนคนจริง vs แผน', t:'ตามแผน'},
+    {k:'Payroll Cost %', dh:'ค่าจ้าง ÷ ยอดขายรวม', ds:'ค่าจ้าง ÷ รายได้', t:'≤ เป้า'},
+    {k:'Absenteeism / Late', d:'อัตราขาด/ลา/มาสาย', t:'ลดลง'},
+    {k:'Time to Hire', d:'วันเฉลี่ย เปิดรับ → รับเข้า', t:'ลดลง'},
+    {k:'Overtime Cost', d:'ชม./ค่าใช้จ่าย OT', t:'คุมได้'},
+    {k:'Training Hours', d:'ชม.อบรมเฉลี่ย/คน', t:'≥ เป้า'},
+    {k:'Revenue / Headcount', dh:'ยอดขาย ÷ จำนวนคน (productivity)', ds:'รายได้ ÷ จำนวนคน', t:'เพิ่มขึ้น'}
+  ],
+  projExHonda:'เช่น "ผู้จัดการฝ่ายบุคคลดีลเลอร์ Honda CSM"',
+  projExSme:'เช่น "ผู้จัดการฝ่ายบุคคลของบริษัท"',
+  p1LblHonda:'PROMPT 1 — Interview HR · Honda CSM',
+  p1LblSme:'PROMPT 1 — Interview HR · SME ทั่วไป',
+  p1Honda:`ผมเป็นผู้จัดการฝ่ายบุคคลของดีลเลอร์ Honda (CSM) ขายรถจักรยานยนต์ มีหลายสาขา
+ผมกำลังจะให้คุณเป็น HR Manager ส่วนตัวของผม ก่อนเริ่ม ช่วยสัมภาษณ์ผมเพื่อเก็บข้อมูลครบทุกอย่างที่ต้องใช้สร้าง SKILL.md
+
+กฎการถาม (สำคัญมาก):
+• ถามทีละคำถามเท่านั้น รอผมตอบก่อนแล้วค่อยถามต่อ
+• แต่ละตัวเลือกต้องอยู่คนละบรรทัด ห้ามอยู่บรรทัดเดียวกัน
+• รูปแบบที่ต้องใช้ทุกครั้ง:
+
+คำถามที่ X — [หัวข้อ]
+[คำถาม]
+
+A — [ตัวเลือก]
+B — [ตัวเลือก]
+C — [ตัวเลือก]
+D — [ตัวเลือก]
+0 — ยังไม่รู้ / ไม่แน่ใจ
+E — ไม่มีในนี้
+
+• ทุกคำถามต้องมีตัวเลือก 0 เสมอ
+• ถ้าผมตอบ 0 ให้จดเรื่องนั้นไว้เป็น gap ที่ต้องหาข้อมูลเพิ่ม
+• ถ้าผมตอบ E ให้เสนอตัวเลือกใหม่สำหรับคำถามนั้นเท่านั้น
+• ผมจะตอบแค่ตัวอักษรเดียว เช่น A หรือ 0 หรือ E
+
+ถามให้ครบทั้ง 4 หมวดนี้ (แต่ละหมวดถามทีละข้อ):
+
+หมวด 1 — บริบท HR ปัจจุบัน: จำนวนพนักงานรวม/ต่อสาขา, ประเภทพนักงาน (เซล/ช่าง/ธุรการ/ผู้บริหาร), ระบบที่ใช้ (Empeo/Shiftsoft/Excel), รอบจ่ายเงินเดือน, โครงสร้างค่าตอบแทน (เงินเดือน+คอม+OT)
+
+หมวด 2 — งานที่อยากให้ HR AI ช่วยมากที่สุด: เช่น สรุป payroll / วิเคราะห์ turnover / ดู attendance-OT / recruitment pipeline / ต้นทุนบุคลากรรายสาขา / productivity ต่อหัว
+
+หมวด 3 — สไตล์การตอบที่ชอบ: เช่น Action-oriented / number-driven / ชี้ความผิดปกติก่อน / มี framework
+
+หมวด 4 — KPI / ตัวเลขที่อยากเน้นดูเป็นพิเศษ: เช่น Turnover rate / Payroll cost % / OT cost / Absenteeism / Revenue per headcount / Time to hire
+
+พอตอบครบทุกหมวดแล้ว ก่อนจบให้สรุปทุกข้อที่ผมตอบ 0 พร้อมแบ่งเป็น 2 กลุ่ม:
+• "ต้องหาก่อนสร้างระบบ" — ถ้าไม่รู้จะทำ Dashboard ถูกต้องไม่ได้ พร้อมบอกว่าหาได้จากไหน
+• "รอได้" — ระบบทำงานได้แม้ยังไม่มีข้อมูลนี้ ค่อยเติมทีหลังได้
+
+เริ่มคำถามแรกได้เลยครับ`,
+  p1Sme:`ผมกำลังจะให้คุณเป็น HR Manager ส่วนตัวของผม ก่อนเริ่ม ช่วยสัมภาษณ์ผมเพื่อเก็บข้อมูลครบทุกอย่างที่ต้องใช้สร้าง SKILL.md
+
+กฎการถาม (สำคัญมาก):
+• ถามทีละคำถามเท่านั้น รอผมตอบก่อนแล้วค่อยถามต่อ
+• แต่ละตัวเลือกต้องอยู่คนละบรรทัด ห้ามอยู่บรรทัดเดียวกัน
+• รูปแบบที่ต้องใช้ทุกครั้ง:
+
+คำถามที่ X — [หัวข้อ]
+[คำถาม]
+
+A — [ตัวเลือก]
+B — [ตัวเลือก]
+C — [ตัวเลือก]
+D — [ตัวเลือก]
+0 — ยังไม่รู้ / ไม่แน่ใจ
+E — ไม่มีในนี้
+
+• ทุกคำถามต้องมีตัวเลือก 0 เสมอ
+• ถ้าผมตอบ 0 ให้จดเรื่องนั้นไว้เป็น gap ที่ต้องหาข้อมูลเพิ่ม
+• ถ้าผมตอบ E ให้เสนอตัวเลือกใหม่สำหรับคำถามนั้นเท่านั้น
+• ผมจะตอบแค่ตัวอักษรเดียว เช่น A หรือ 0 หรือ E
+
+ถามให้ครบทั้ง 4 หมวดนี้ (แต่ละหมวดถามทีละข้อ):
+
+หมวด 1 — บริบท HR ปัจจุบัน: จำนวนพนักงานรวม, แผนก/ตำแหน่งหลัก, ระบบ HR/payroll ที่ใช้, รอบจ่ายเงินเดือน, โครงสร้างค่าตอบแทน
+
+หมวด 2 — งานที่อยากให้ HR AI ช่วยมากที่สุด: เช่น payroll summary / turnover analysis / attendance & OT / recruitment pipeline / ต้นทุนบุคลากร / performance review
+
+หมวด 3 — สไตล์การตอบที่ชอบ: เช่น Action-oriented / number-driven / ชี้ความผิดปกติก่อน / มี framework
+
+หมวด 4 — KPI / ตัวเลขที่อยากเน้นดูเป็นพิเศษ: เช่น Turnover rate / Payroll cost % / OT cost / Absenteeism / Revenue per headcount / Time to hire
+
+พอตอบครบทุกหมวดแล้ว ก่อนจบให้สรุปทุกข้อที่ผมตอบ 0 พร้อมแบ่งเป็น 2 กลุ่ม:
+• "ต้องหาก่อนสร้างระบบ" — ถ้าไม่รู้จะทำ Dashboard ถูกต้องไม่ได้ พร้อมบอกว่าหาได้จากไหน
+• "รอได้" — ระบบทำงานได้แม้ยังไม่มีข้อมูลนี้ ค่อยเติมทีหลังได้
+
+เริ่มคำถามแรกได้เลยครับ`,
+  p5Title:'Prompt 5 — สร้าง Employee Tracker + HR Dashboard',
+  p5StepTitle:'สร้าง HR Tracker + Dashboard (เว็บแอปไฟล์เดียว)',
+  p5StepDesc:'ได้เว็บแอปที่ <b>กรอก/แก้ไข/ลบ</b> ทะเบียนพนักงาน + ขาด-ลา-OT ได้ในหน้าเว็บ → เก็บถาวรด้วย localStorage → Dashboard headcount/turnover/payroll อัปเดตทันที → Export/Import ได้',
+  p5LblHonda:'PROMPT 5 — HR Tracker · Honda CSM',
+  p5LblSme:'PROMPT 5 — HR Tracker · SME ทั่วไป',
+  p5Honda:`สร้างระบบ Employee Tracker + Interactive Dashboard งานบุคคลสำหรับดีลเลอร์ Honda (CSM) เป็นเว็บแอป HTML ไฟล์เดียวจบ ที่ทั้ง "บันทึกข้อมูล" และ "สรุปเป็น Dashboard" ในตัว เปิดในเบราว์เซอร์ใช้ได้ทันที ไม่ต้องติดตั้งอะไร อ้างอิงข้อมูลธุรกิจจาก Project Description, Instruction และไฟล์ที่ upload ได้เลย
+
+หัวใจของระบบ = บันทึกข้อมูลได้จริงในหน้าเว็บ:
+• มีฟอร์ม เพิ่ม / แก้ไข / ลบ รายชื่อพนักงาน ครบทุก field
+• Field: รหัส │ ชื่อ │ สาขา │ แผนก/ตำแหน่ง (เซล/ช่าง/ธุรการ) │ วันเริ่มงาน │ สถานะ (ทำงาน/ลาออก) │ วันลาออก │ เงินเดือน │ ขาด/ลา/สาย (วัน) │ OT (ชม.) │ โน้ต
+• เก็บข้อมูลถาวรด้วย localStorage — refresh แล้วข้อมูลไม่หาย
+• ปุ่ม Export (CSV + JSON) และ Import กลับเข้ามาได้
+
+โครงหน้าจอ (แท็บ/ส่วนในไฟล์เดียว):
+
+1 — Settings (แก้ค่าได้ในเว็บ)
+• สาขา, แผนก/ตำแหน่ง, ประเภทพนักงาน
+• Headcount plan ต่อสาขา, เป้า turnover, เป้า payroll %
+
+2 — Employees (ตารางบันทึกข้อมูลหลัก)
+• ตารางที่ ค้นหา / กรอง (ตามสาขา, แผนก, สถานะ) / เรียงลำดับ ได้
+• คลิกแถวเพื่อแก้ไข, เปลี่ยนสถานะ "ลาออก" แล้ว Dashboard อัปเดตทันที
+• คำนวณอัตโนมัติ: อายุงาน, payroll รวมต่อสาขา
+
+3 — Dashboard (อัปเดตอัตโนมัติจากข้อมูลที่บันทึก)
+• การ์ด KPI: Headcount รวม │ Turnover rate │ Payroll cost รวม │ OT รวม
+• กราฟ (Chart.js ผ่าน CDN): Headcount รายสาขา, Turnover รายเดือน (trend), Payroll ตามแผนก, ขาด-ลา-สาย
+• Headcount by สาขา: สาขา │ จริง vs plan │ ลาออก │ payroll │ OT — เกิน plan/เป้า สีแดง
+• Attendance: คนที่ขาด/สายเกินเกณฑ์ + แผนกที่ turnover สูงสุด
+
+ข้อกำหนดทางเทคนิค:
+• HTML/CSS/JS รวมในไฟล์เดียว, vanilla JS, Chart.js ผ่าน CDN
+• ข้อมูลทั้งหมดเก็บใน localStorage + Export/Import (CSV/JSON)
+• ทำสีเตือน แดง/เหลือง/เขียว ตามเกณฑ์ข้างบน
+• ใส่ข้อมูลตัวอย่าง (seed) 12–18 คนที่เหมาะกับดีลเลอร์รถจักรยานยนต์ (เซล/ช่าง/ธุรการ หลายสาขา) พร้อมปุ่ม "ล้างข้อมูลตัวอย่าง"
+• ถ้าข้อมูลยังขาด ให้เพิ่มส่วน "Data Checklist": ข้อมูลที่ต้องหา │ หาได้จากไหน │ หาแล้วหรือยัง
+• ⚠️ ปกปิด/ไม่โชว์ข้อมูลอ่อนไหว (เลขบัตรประชาชน ฯลฯ) — เก็บเฉพาะที่จำเป็นต่อการบริหาร
+
+ส่งมาเป็นไฟล์ .html ไฟล์เดียวพร้อมใช้งานได้เลยครับ`,
+  p5Sme:`สร้างระบบ Employee Tracker + Interactive Dashboard งานบุคคล เป็นเว็บแอป HTML ไฟล์เดียวจบ ที่ทั้ง "บันทึกข้อมูล" และ "สรุปเป็น Dashboard" ในตัว เปิดในเบราว์เซอร์ใช้ได้ทันที ไม่ต้องติดตั้งอะไร อ้างอิงข้อมูลธุรกิจจาก Project Description, Instruction และไฟล์ที่ upload ได้เลย
+
+หัวใจของระบบ = บันทึกข้อมูลได้จริงในหน้าเว็บ:
+• มีฟอร์ม เพิ่ม / แก้ไข / ลบ รายชื่อพนักงาน ครบทุก field
+• Field: รหัส │ ชื่อ │ แผนก │ ตำแหน่ง │ วันเริ่มงาน │ สถานะ (Active/Resigned) │ วันลาออก │ เงินเดือน │ ขาด/ลา/สาย (วัน) │ OT (ชม.) │ โน้ต
+• เก็บข้อมูลถาวรด้วย localStorage — refresh แล้วข้อมูลไม่หาย
+• ปุ่ม Export (CSV + JSON) และ Import กลับเข้ามาได้
+
+โครงหน้าจอ (แท็บ/ส่วนในไฟล์เดียว):
+
+1 — Settings (แก้ค่าได้ในเว็บ)
+• แผนก, ตำแหน่ง, ประเภทการจ้าง
+• Headcount plan, เป้า turnover, เป้า payroll %
+
+2 — Employees (ตารางบันทึกข้อมูลหลัก)
+• ตารางที่ ค้นหา / กรอง (ตามแผนก, ตำแหน่ง, สถานะ) / เรียงลำดับ ได้
+• คลิกแถวเพื่อแก้ไข, เปลี่ยนสถานะ Resigned แล้ว Dashboard อัปเดตทันที
+• คำนวณอัตโนมัติ: อายุงาน, payroll รวมต่อแผนก
+
+3 — Dashboard (อัปเดตอัตโนมัติจากข้อมูลที่บันทึก)
+• การ์ด KPI: Headcount รวม │ Turnover rate │ Payroll cost รวม │ OT รวม
+• กราฟ (Chart.js ผ่าน CDN): Headcount ตามแผนก, Turnover รายเดือน (trend), Payroll ตามแผนก, ขาด-ลา-สาย
+• Headcount by แผนก: แผนก │ จริง vs plan │ ลาออก │ payroll │ OT — เกิน plan/เป้า สีแดง
+• Attendance: คนที่ขาด/สายเกินเกณฑ์ + แผนกที่ turnover สูงสุด
+
+ข้อกำหนดทางเทคนิค:
+• HTML/CSS/JS รวมในไฟล์เดียว, vanilla JS, Chart.js ผ่าน CDN
+• ข้อมูลทั้งหมดเก็บใน localStorage + Export/Import (CSV/JSON)
+• ทำสีเตือน แดง/เหลือง/เขียว ตามเกณฑ์ข้างบน
+• ใส่ข้อมูลตัวอย่าง (seed) 12–18 คนที่เหมาะกับธุรกิจนี้ พร้อมปุ่ม "ล้างข้อมูลตัวอย่าง"
+• ถ้าข้อมูลยังขาด ให้เพิ่มส่วน "Data Checklist": ข้อมูลที่ต้องหา │ หาได้จากไหน │ หาแล้วหรือยัง
+• ⚠️ ปกปิด/ไม่โชว์ข้อมูลอ่อนไหว (เลขบัตรประชาชน ฯลฯ) — เก็บเฉพาะที่จำเป็นต่อการบริหาร
+
+ส่งมาเป็นไฟล์ .html ไฟล์เดียวพร้อมใช้งานได้เลยครับ`,
+  p6LblHonda:'PROMPT 6 — Build Dashboard · Honda CSM',
+  p6LblSme:'PROMPT 6 — Build Dashboard · SME ทั่วไป',
+  p6FilesHonda:'(payroll รายสาขา, ทะเบียนพนักงาน, รายงานขาด-ลา-OT, ค่าคอม)',
+  p6FilesSme:'(payroll, ทะเบียนพนักงาน, รายงานขาด-ลา-OT, turnover)',
+  p6Honda:`ผมวางไฟล์ข้อมูล HR ทั้งหมดไว้ใน Project นี้แล้ว (payroll รายสาขา, ทะเบียนพนักงาน, ขาด-ลา-OT, ค่าคอม ฯลฯ) เดือนที่อยากสรุปคือ [ระบุเดือน]
+
+ช่วยอ่านไฟล์ทั้งหมด แล้วสร้าง Dashboard สรุปภาพรวมให้ผม ประกอบด้วย:
+
+1. การ์ด KPI หลัก: Headcount, Turnover rate, Payroll cost + % ของยอดขาย, OT รวม, Revenue per headcount
+2. กราฟ: Headcount รายสาขา, Turnover รายเดือน (trend), Payroll ตามแผนก, ขาด-ลา-สาย
+3. ตาราง By สาขา: คนจริง vs plan / ลาออก / payroll / OT (ทำสีเตือน เกินเป้า แดง)
+4. Turnover: แผนก/สาขาที่ลาออกสูงสุด + ช่วงอายุงานที่หลุดเยอะ
+5. Attendance/OT: คน/สาขาที่ขาด-สาย-OT ผิดปกติ ควรดูก่อน
+
+ข้อกำหนด:
+• อ่านข้อมูลจริงจากไฟล์ที่ผมวางไว้ ถ้าไฟล์ไหนอ่านไม่ได้หรือข้อมูลขาด ให้บอกผมว่าขาดอะไร อย่าเดามั่ว
+• ⚠️ ห้ามแสดงข้อมูลอ่อนไหว (เลขบัตร ฯลฯ) — ใช้เฉพาะที่จำเป็นต่อการบริหาร
+• สร้างเป็นไฟล์ HTML ไฟล์เดียวจบ (ใช้ Chart.js ผ่าน CDN) เปิดในเบราว์เซอร์ได้ทันที ฝังข้อมูลจริงจากไฟล์ลงไป
+• ปิดท้ายด้วยสรุป 3 ข้อ: (1) ภาพรวมเดือนนี้ ดี/แย่จุดไหน (2) จุดที่น่าเป็นห่วงที่สุด (3) สิ่งที่ต้องทำก่อน อย่างเดียวที่สำคัญที่สุด
+
+ตอบตรง ชี้ปัญหาก่อนแนะนำทาง`,
+  p6Sme:`ผมวางไฟล์ข้อมูล HR ทั้งหมดไว้ใน Project นี้แล้ว (payroll, ทะเบียนพนักงาน, ขาด-ลา-OT, turnover ฯลฯ) เดือนที่อยากสรุปคือ [ระบุเดือน]
+
+ช่วยอ่านไฟล์ทั้งหมด แล้วสร้าง Dashboard สรุปภาพรวมให้ผม ประกอบด้วย:
+
+1. การ์ด KPI หลัก: Headcount, Turnover rate, Payroll cost + % ของรายได้, OT รวม, Revenue per headcount
+2. กราฟ: Headcount ตามแผนก, Turnover รายเดือน (trend), Payroll ตามแผนก, ขาด-ลา-สาย
+3. ตาราง By แผนก: คนจริง vs plan / ลาออก / payroll / OT (ทำสีเตือน เกินเป้า แดง)
+4. Turnover: แผนกที่ลาออกสูงสุด + ช่วงอายุงานที่หลุดเยอะ
+5. Attendance/OT: คน/แผนกที่ขาด-สาย-OT ผิดปกติ ควรดูก่อน
+
+ข้อกำหนด:
+• อ่านข้อมูลจริงจากไฟล์ที่ผมวางไว้ ถ้าไฟล์ไหนอ่านไม่ได้หรือข้อมูลขาด ให้บอกผมว่าขาดอะไร อย่าเดามั่ว
+• ⚠️ ห้ามแสดงข้อมูลอ่อนไหว (เลขบัตร ฯลฯ) — ใช้เฉพาะที่จำเป็นต่อการบริหาร
+• สร้างเป็นไฟล์ HTML ไฟล์เดียวจบ (ใช้ Chart.js ผ่าน CDN) เปิดในเบราว์เซอร์ได้ทันที ฝังข้อมูลจริงจากไฟล์ลงไป
+• ปิดท้ายด้วยสรุป 3 ข้อ: (1) ภาพรวมเดือนนี้ ดี/แย่จุดไหน (2) จุดที่น่าเป็นห่วงที่สุด (3) สิ่งที่ต้องทำก่อน อย่างเดียวที่สำคัญที่สุด
+
+ตอบตรง ชี้ปัญหาก่อนแนะนำทาง`,
+  finishTitle:'🎉 HR AI พร้อมทำงานแล้ว!',
+  finishText:'ตอนนี้คุณมี Claude ที่รู้จัก headcount, payroll, KPI และสไตล์ของคุณ พร้อม Employee Tracker + Dashboard สรุปจากไฟล์จริง วางไฟล์ใหม่แล้วเดิน Prompt 6 ทุกสิ้นเดือนเพื่อสรุปไว ๆ — ลองใช้เอง 1 สัปดาห์ก่อนเอาเข้าทีมครับ'
+};
+
+/* ============ OPERATIONS / SERVICE ============ */
+ROLES.ops = {
+  key:'ops', icon:'🛠', selLabel:'🛠 Operations / Service',
+  projName:'Operations Manager', roleTH:'ผู้จัดการฝ่ายปฏิบัติการ/บริการ', skillName:'operations',
+  skillDesc:'Operations/Service Manager ส่วนตัวที่รู้จักธุรกิจของผมโดยเฉพาะ', domainTH:'งานปฏิบัติการ/บริการ',
+  folderHonda:'CSM-Service/', folderSme:'Operations/', dataFileEx:'ops_2026-05.xlsx',
+  projUploadEx:'รายงานเปิด-ปิดจ๊อบ / ประวัติซ่อม / รายงานช่าง / stock อะไหล่ / SLA',
+  refEx:'มาตรฐาน SLA, รายการบริการ/ราคา, รายชื่อช่าง/ทีม/สาขา',
+  kicker:'6-Prompt Framework · Operations Manager',
+  titleHTML:'สร้าง <span class="g">AI ผู้จัดการฝ่ายปฏิบัติการ</span><br>ส่วนตัวของคุณ ทีละ Prompt',
+  leadHonda:'คู่มือ <b>step-by-step</b> เดิน 6 Prompt เพื่อปั้น Claude ให้เป็น <b>Operations / Service Manager AI</b> — ตอนนี้อยู่โหมด <b>🏍 Honda CSM</b> เติม context ศูนย์บริการ (เปิดจ๊อบ → ซ่อม → ส่งมอบ, รายงานช่าง, stock อะไหล่, CSI) ให้แล้ว',
+  leadSme:'คู่มือ <b>step-by-step</b> เดิน 6 Prompt เพื่อปั้น Claude ให้เป็น <b>Operations Manager AI</b> — ตอนนี้อยู่โหมด <b>🏢 SME ทั่วไป</b> ใช้ได้กับธุรกิจ SME ทุกแบบ (Job intake → Process → Delivery → SLA)',
+  dutyTitle:'หน้าที่หลักของ Operations / Service Manager',
+  dutyDescHonda:'สำหรับดีลเลอร์ Honda (CSM) — คุมงานซ่อม/บริการรายวันหลายสาขา ตั้งแต่เปิดจ๊อบ จนส่งมอบรถ + คุม productivity ช่าง',
+  dutyDescSme:'เวอร์ชันกลางสำหรับ SME ทุกอุตสาหกรรม — คุม job flow, productivity, SLA, คิวงาน และ stock',
+  duties:[
+    {t:'คุมงาน/จ๊อบรายวัน (intake → process → delivery)'},
+    {t:'ดู Productivity / Utilization ของทีม'},
+    {t:'คุม SLA / เวลาส่งมอบ (turnaround time)'},
+    {t:'จัดคิวงาน / balance workload'},
+    {t:'คุม Stock อะไหล่/วัสดุ + re-order'},
+    {t:'เปิดจ๊อบ→ซ่อม→ส่งมอบ, รายงานช่าง, ดูแล CSI', m:'honda'},
+    {t:'ปรับ process / ลด waste / คุมต้นทุนงาน', m:'sme'}
+  ],
+  kpis:[
+    {k:'Jobs Completed', dh:'จ๊อบเสร็จ/วัน ต่อสาขา', ds:'งานเสร็จ/วัน', t:'≥ เป้า'},
+    {k:'Turnaround Time', d:'วัน/ชม.เฉลี่ย เปิด → ส่งมอบ', t:'ลดลง'},
+    {k:'Technician Productivity', dh:'ชม.ขายได้ ÷ ชม.ทำงาน (ช่าง)', ds:'งานเสร็จ ÷ คน', t:'≥ เป้า'},
+    {k:'SLA Compliance', d:'% งานเสร็จตรงเวลา', t:'≥ 90%'},
+    {k:'Rework / Comeback', dh:'% รถกลับมาซ่อมซ้ำ', ds:'% งานต้องแก้ซ้ำ', t:'ลดลง'},
+    {k:'Parts Availability', d:'% อะไหล่พร้อมจ่าย (ไม่ stock-out)', t:'≥ เป้า'},
+    {k:'Revenue per Job', d:'มูลค่าเฉลี่ยต่อจ๊อบ', t:'เพิ่มขึ้น'},
+    {k:'Open / Backlog Jobs', dh:'จ๊อบค้าง + CSI', ds:'งานค้างในระบบ', t:'ลดลง'}
+  ],
+  projExHonda:'เช่น "ผู้จัดการศูนย์บริการ Honda CSM"',
+  projExSme:'เช่น "ผู้จัดการฝ่ายปฏิบัติการของบริษัท"',
+  p1LblHonda:'PROMPT 1 — Interview Ops · Honda CSM',
+  p1LblSme:'PROMPT 1 — Interview Ops · SME ทั่วไป',
+  p1Honda:`ผมเป็นผู้จัดการศูนย์บริการของดีลเลอร์ Honda (CSM) มีหลายสาขา ดูแลงานซ่อม/บริการ
+ผมกำลังจะให้คุณเป็น Operations / Service Manager ส่วนตัวของผม ก่อนเริ่ม ช่วยสัมภาษณ์ผมเพื่อเก็บข้อมูลครบทุกอย่างที่ต้องใช้สร้าง SKILL.md
+
+กฎการถาม (สำคัญมาก):
+• ถามทีละคำถามเท่านั้น รอผมตอบก่อนแล้วค่อยถามต่อ
+• แต่ละตัวเลือกต้องอยู่คนละบรรทัด ห้ามอยู่บรรทัดเดียวกัน
+• รูปแบบที่ต้องใช้ทุกครั้ง:
+
+คำถามที่ X — [หัวข้อ]
+[คำถาม]
+
+A — [ตัวเลือก]
+B — [ตัวเลือก]
+C — [ตัวเลือก]
+D — [ตัวเลือก]
+0 — ยังไม่รู้ / ไม่แน่ใจ
+E — ไม่มีในนี้
+
+• ทุกคำถามต้องมีตัวเลือก 0 เสมอ
+• ถ้าผมตอบ 0 ให้จดเรื่องนั้นไว้เป็น gap ที่ต้องหาข้อมูลเพิ่ม
+• ถ้าผมตอบ E ให้เสนอตัวเลือกใหม่สำหรับคำถามนั้นเท่านั้น
+• ผมจะตอบแค่ตัวอักษรเดียว เช่น A หรือ 0 หรือ E
+
+ถามให้ครบทั้ง 4 หมวดนี้ (แต่ละหมวดถามทีละข้อ):
+
+หมวด 1 — บริบทงานบริการปัจจุบัน: จำนวนช่างต่อสาขา, จำนวนจ๊อบเฉลี่ย/วัน, ระบบเปิดจ๊อบที่ใช้, รอบงาน (เปิดจ๊อบ → ซ่อม → ส่งมอบ กี่ชม./วัน), การจัดการ stock อะไหล่
+
+หมวด 2 — งานที่อยากให้ Ops AI ช่วยมากที่สุด: เช่น คุมคิวงาน/จ๊อบค้าง / productivity ช่าง / turnaround time / SLA / stock อะไหล่ / วิเคราะห์ rework / CSI
+
+หมวด 3 — สไตล์การตอบที่ชอบ: เช่น Action-oriented / number-driven / ชี้คอขวดก่อน / มี framework
+
+หมวด 4 — KPI / ตัวเลขที่อยากเน้นดูเป็นพิเศษ: เช่น จ๊อบเสร็จ/วัน / TAT / productivity ช่าง / SLA % / rework rate / parts availability / revenue per job
+
+พอตอบครบทุกหมวดแล้ว ก่อนจบให้สรุปทุกข้อที่ผมตอบ 0 พร้อมแบ่งเป็น 2 กลุ่ม:
+• "ต้องหาก่อนสร้างระบบ" — ถ้าไม่รู้จะทำ Dashboard ถูกต้องไม่ได้ พร้อมบอกว่าหาได้จากไหน
+• "รอได้" — ระบบทำงานได้แม้ยังไม่มีข้อมูลนี้ ค่อยเติมทีหลังได้
+
+เริ่มคำถามแรกได้เลยครับ`,
+  p1Sme:`ผมกำลังจะให้คุณเป็น Operations Manager ส่วนตัวของผม ก่อนเริ่ม ช่วยสัมภาษณ์ผมเพื่อเก็บข้อมูลครบทุกอย่างที่ต้องใช้สร้าง SKILL.md
+
+กฎการถาม (สำคัญมาก):
+• ถามทีละคำถามเท่านั้น รอผมตอบก่อนแล้วค่อยถามต่อ
+• แต่ละตัวเลือกต้องอยู่คนละบรรทัด ห้ามอยู่บรรทัดเดียวกัน
+• รูปแบบที่ต้องใช้ทุกครั้ง:
+
+คำถามที่ X — [หัวข้อ]
+[คำถาม]
+
+A — [ตัวเลือก]
+B — [ตัวเลือก]
+C — [ตัวเลือก]
+D — [ตัวเลือก]
+0 — ยังไม่รู้ / ไม่แน่ใจ
+E — ไม่มีในนี้
+
+• ทุกคำถามต้องมีตัวเลือก 0 เสมอ
+• ถ้าผมตอบ 0 ให้จดเรื่องนั้นไว้เป็น gap ที่ต้องหาข้อมูลเพิ่ม
+• ถ้าผมตอบ E ให้เสนอตัวเลือกใหม่สำหรับคำถามนั้นเท่านั้น
+• ผมจะตอบแค่ตัวอักษรเดียว เช่น A หรือ 0 หรือ E
+
+ถามให้ครบทั้ง 4 หมวดนี้ (แต่ละหมวดถามทีละข้อ):
+
+หมวด 1 — บริบทงานปฏิบัติการปัจจุบัน: ทีมกี่คน, ปริมาณงาน/วัน, ระบบที่ใช้คุมงาน, รอบงาน (intake → process → delivery), การจัดการ stock/วัสดุ
+
+หมวด 2 — งานที่อยากให้ Ops AI ช่วยมากที่สุด: เช่น คุมคิวงาน/งานค้าง / productivity / turnaround time / SLA / stock / วิเคราะห์ rework / process improvement
+
+หมวด 3 — สไตล์การตอบที่ชอบ: เช่น Action-oriented / number-driven / ชี้คอขวดก่อน / มี framework (Lean, theory of constraints)
+
+หมวด 4 — KPI / ตัวเลขที่อยากเน้นดูเป็นพิเศษ: เช่น งานเสร็จ/วัน / TAT / productivity / SLA % / rework rate / stock-out / revenue per job
+
+พอตอบครบทุกหมวดแล้ว ก่อนจบให้สรุปทุกข้อที่ผมตอบ 0 พร้อมแบ่งเป็น 2 กลุ่ม:
+• "ต้องหาก่อนสร้างระบบ" — ถ้าไม่รู้จะทำ Dashboard ถูกต้องไม่ได้ พร้อมบอกว่าหาได้จากไหน
+• "รอได้" — ระบบทำงานได้แม้ยังไม่มีข้อมูลนี้ ค่อยเติมทีหลังได้
+
+เริ่มคำถามแรกได้เลยครับ`,
+  p5Title:'Prompt 5 — สร้าง Job Tracker + Operations Dashboard',
+  p5StepTitle:'สร้าง Ops/Service Tracker + Dashboard (เว็บแอปไฟล์เดียว)',
+  p5StepDesc:'ได้เว็บแอปที่ <b>กรอก/แก้ไข/ลบ</b> จ๊อบงาน + สถานะ + ช่าง ได้ในหน้าเว็บ → เก็บถาวรด้วย localStorage → Dashboard TAT/SLA/productivity อัปเดตทันที → Export/Import ได้',
+  p5LblHonda:'PROMPT 5 — Job Tracker · Honda CSM',
+  p5LblSme:'PROMPT 5 — Job Tracker · SME ทั่วไป',
+  p5Honda:`สร้างระบบ Job Tracker + Interactive Dashboard งานบริการสำหรับศูนย์บริการ Honda (CSM) เป็นเว็บแอป HTML ไฟล์เดียวจบ ที่ทั้ง "บันทึกข้อมูล" และ "สรุปเป็น Dashboard" ในตัว เปิดในเบราว์เซอร์ใช้ได้ทันที ไม่ต้องติดตั้งอะไร อ้างอิงข้อมูลธุรกิจจาก Project Description, Instruction และไฟล์ที่ upload ได้เลย
+
+หัวใจของระบบ = บันทึกข้อมูลได้จริงในหน้าเว็บ:
+• มีฟอร์ม เพิ่ม / แก้ไข / ลบ รายการจ๊อบงาน ครบทุก field
+• Field: วันที่เปิดจ๊อบ │ ลูกค้า/ทะเบียนรถ │ งาน/บริการ │ ช่างผู้รับผิดชอบ │ สาขา │ Stage/สถานะ │ เริ่ม-เสร็จ │ TAT (วัน/ชม.) │ มูลค่า │ อะไหล่ที่ใช้ │ โน้ต
+• เก็บข้อมูลถาวรด้วย localStorage — refresh แล้วข้อมูลไม่หาย
+• ปุ่ม Export (CSV + JSON) และ Import กลับเข้ามาได้
+
+โครงหน้าจอ (แท็บ/ส่วนในไฟล์เดียว):
+
+1 — Settings (แก้ค่าได้ในเว็บ)
+• Stages: รับเข้า → รอซ่อม → กำลังซ่อม → รออะไหล่ → เสร็จ → ส่งมอบ
+• ช่าง: ชื่อ, สาขา, ชม.ทำงานต่อวัน
+• ประเภทงาน/ราคา, มาตรฐาน SLA (กี่ชม./วัน) ต่อประเภทงาน
+
+2 — Jobs (ตารางบันทึกข้อมูลหลัก)
+• ตารางที่ ค้นหา / กรอง (ตาม Stage, ช่าง, สาขา) / เรียงลำดับ ได้
+• คลิกแถวเพื่อแก้ไข, เปลี่ยน Stage ได้ในตาราง แล้ว Dashboard อัปเดตทันที
+• ปุ่ม "ส่งมอบแล้ว" ย้ายไป Closed + นับ TAT อัตโนมัติ + เทียบกับ SLA
+
+3 — Dashboard (อัปเดตอัตโนมัติจากข้อมูลที่บันทึก)
+• การ์ด KPI: จ๊อบเปิดวันนี้ │ จ๊อบค้าง │ TAT เฉลี่ย │ SLA Compliance %
+• กราฟ (Chart.js ผ่าน CDN): จ๊อบตาม Stage, จ๊อบเสร็จรายวัน/เดือน, ผลงานรายช่าง, งานตามประเภท
+• Technician Performance: ช่าง │ จ๊อบเสร็จ │ TAT เฉลี่ย │ productivity │ rework — เกินเป้า/SLA สีแดง
+• Bottleneck: Stage ที่จ๊อบค้างเยอะสุด + งานที่เกิน SLA + อะไหล่ที่ทำให้รอ (stock-out)
+
+ข้อกำหนดทางเทคนิค:
+• HTML/CSS/JS รวมในไฟล์เดียว, vanilla JS, Chart.js ผ่าน CDN
+• ข้อมูลทั้งหมดเก็บใน localStorage + Export/Import (CSV/JSON)
+• ทำสีเตือน แดง/เหลือง/เขียว ตามเกณฑ์ข้างบน
+• ใส่ข้อมูลตัวอย่าง (seed) 12–18 จ๊อบที่เหมาะกับศูนย์บริการรถจักรยานยนต์ พร้อมปุ่ม "ล้างข้อมูลตัวอย่าง"
+• ถ้าข้อมูลยังขาด ให้เพิ่มส่วน "Data Checklist": ข้อมูลที่ต้องหา │ หาได้จากไหน │ หาแล้วหรือยัง
+
+ส่งมาเป็นไฟล์ .html ไฟล์เดียวพร้อมใช้งานได้เลยครับ`,
+  p5Sme:`สร้างระบบ Job Tracker + Interactive Dashboard งานปฏิบัติการ/บริการ เป็นเว็บแอป HTML ไฟล์เดียวจบ ที่ทั้ง "บันทึกข้อมูล" และ "สรุปเป็น Dashboard" ในตัว เปิดในเบราว์เซอร์ใช้ได้ทันที ไม่ต้องติดตั้งอะไร อ้างอิงข้อมูลธุรกิจจาก Project Description, Instruction และไฟล์ที่ upload ได้เลย
+
+หัวใจของระบบ = บันทึกข้อมูลได้จริงในหน้าเว็บ:
+• มีฟอร์ม เพิ่ม / แก้ไข / ลบ รายการงาน ครบทุก field
+• Field: วันที่รับงาน │ ลูกค้า/Order │ งาน/บริการ │ ผู้รับผิดชอบ │ ทีม/สาขา │ Stage/สถานะ │ เริ่ม-เสร็จ │ TAT │ มูลค่า │ วัสดุที่ใช้ │ โน้ต
+• เก็บข้อมูลถาวรด้วย localStorage — refresh แล้วข้อมูลไม่หาย
+• ปุ่ม Export (CSV + JSON) และ Import กลับเข้ามาได้
+
+โครงหน้าจอ (แท็บ/ส่วนในไฟล์เดียว):
+
+1 — Settings (แก้ค่าได้ในเว็บ)
+• Stages: Intake → Queue → In Progress → On Hold → Done → Delivered
+• ผู้รับผิดชอบ/ทีม, capacity ต่อวัน
+• ประเภทงาน/ราคา, มาตรฐาน SLA ต่อประเภทงาน
+
+2 — Jobs (ตารางบันทึกข้อมูลหลัก)
+• ตารางที่ ค้นหา / กรอง (ตาม Stage, ผู้รับผิดชอบ, ทีม) / เรียงลำดับ ได้
+• คลิกแถวเพื่อแก้ไข, เปลี่ยน Stage ได้ในตาราง แล้ว Dashboard อัปเดตทันที
+• ปุ่ม "Delivered" ย้ายไป Closed + นับ TAT อัตโนมัติ + เทียบกับ SLA
+
+3 — Dashboard (อัปเดตอัตโนมัติจากข้อมูลที่บันทึก)
+• การ์ด KPI: งานเปิดวันนี้ │ งานค้าง │ TAT เฉลี่ย │ SLA Compliance %
+• กราฟ (Chart.js ผ่าน CDN): งานตาม Stage, งานเสร็จรายวัน/เดือน, ผลงานรายคน, งานตามประเภท
+• Team Performance: คน/ทีม │ งานเสร็จ │ TAT เฉลี่ย │ productivity │ rework — เกินเป้า/SLA สีแดง
+• Bottleneck: Stage ที่งานค้างเยอะสุด + งานที่เกิน SLA + วัสดุที่ทำให้รอ (stock-out)
+
+ข้อกำหนดทางเทคนิค:
+• HTML/CSS/JS รวมในไฟล์เดียว, vanilla JS, Chart.js ผ่าน CDN
+• ข้อมูลทั้งหมดเก็บใน localStorage + Export/Import (CSV/JSON)
+• ทำสีเตือน แดง/เหลือง/เขียว ตามเกณฑ์ข้างบน
+• ใส่ข้อมูลตัวอย่าง (seed) 12–18 งานที่เหมาะกับธุรกิจนี้ พร้อมปุ่ม "ล้างข้อมูลตัวอย่าง"
+• ถ้าข้อมูลยังขาด ให้เพิ่มส่วน "Data Checklist": ข้อมูลที่ต้องหา │ หาได้จากไหน │ หาแล้วหรือยัง
+
+ส่งมาเป็นไฟล์ .html ไฟล์เดียวพร้อมใช้งานได้เลยครับ`,
+  p6LblHonda:'PROMPT 6 — Build Dashboard · Honda CSM',
+  p6LblSme:'PROMPT 6 — Build Dashboard · SME ทั่วไป',
+  p6FilesHonda:'(รายงานเปิด-ปิดจ๊อบ, รายงานช่าง, stock อะไหล่, CSI)',
+  p6FilesSme:'(รายงานงาน/จ๊อบ, productivity, stock/วัสดุ, SLA)',
+  p6Honda:`ผมวางไฟล์ข้อมูลงานบริการทั้งหมดไว้ใน Project นี้แล้ว (เปิด-ปิดจ๊อบ, รายงานช่าง, stock อะไหล่, CSI ฯลฯ) เดือนที่อยากสรุปคือ [ระบุเดือน]
+
+ช่วยอ่านไฟล์ทั้งหมด แล้วสร้าง Dashboard สรุปภาพรวมให้ผม ประกอบด้วย:
+
+1. การ์ด KPI หลัก: จ๊อบเสร็จ, TAT เฉลี่ย, SLA compliance %, productivity ช่าง, revenue per job
+2. กราฟ: จ๊อบเสร็จรายวัน/เดือน (trend), จ๊อบตาม Stage, ผลงานรายช่าง, งานตามประเภท
+3. ตาราง By ช่าง/สาขา: จ๊อบเสร็จ / TAT / productivity / rework (ทำสีเตือน เกิน SLA แดง)
+4. Bottleneck: Stage ที่จ๊อบค้างเยอะสุด + งานเกิน SLA + อะไหล่ stock-out ที่ทำให้รอ
+5. Rework/CSI: งานที่กลับมาซ่อมซ้ำ + สาขาที่ CSI ต่ำ ควรดูก่อน
+
+ข้อกำหนด:
+• อ่านข้อมูลจริงจากไฟล์ที่ผมวางไว้ ถ้าไฟล์ไหนอ่านไม่ได้หรือข้อมูลขาด ให้บอกผมว่าขาดอะไร อย่าเดามั่ว
+• สร้างเป็นไฟล์ HTML ไฟล์เดียวจบ (ใช้ Chart.js ผ่าน CDN) เปิดในเบราว์เซอร์ได้ทันที ฝังข้อมูลจริงจากไฟล์ลงไป
+• ปิดท้ายด้วยสรุป 3 ข้อ: (1) ภาพรวมเดือนนี้ ดี/แย่จุดไหน (2) จุดที่น่าเป็นห่วงที่สุด (3) สิ่งที่ต้องทำก่อน อย่างเดียวที่สำคัญที่สุด
+
+ตอบตรง ชี้ปัญหาก่อนแนะนำทาง`,
+  p6Sme:`ผมวางไฟล์ข้อมูลงานปฏิบัติการทั้งหมดไว้ใน Project นี้แล้ว (รายงานงาน/จ๊อบ, productivity, stock/วัสดุ, SLA ฯลฯ) เดือนที่อยากสรุปคือ [ระบุเดือน]
+
+ช่วยอ่านไฟล์ทั้งหมด แล้วสร้าง Dashboard สรุปภาพรวมให้ผม ประกอบด้วย:
+
+1. การ์ด KPI หลัก: งานเสร็จ, TAT เฉลี่ย, SLA compliance %, productivity, revenue per job
+2. กราฟ: งานเสร็จรายวัน/เดือน (trend), งานตาม Stage, ผลงานรายคน, งานตามประเภท
+3. ตาราง By คน/ทีม: งานเสร็จ / TAT / productivity / rework (ทำสีเตือน เกิน SLA แดง)
+4. Bottleneck: Stage ที่งานค้างเยอะสุด + งานเกิน SLA + วัสดุ stock-out ที่ทำให้รอ
+5. Rework: งานที่ต้องแก้ซ้ำ + ทีมที่ rework สูงสุด ควรดูก่อน
+
+ข้อกำหนด:
+• อ่านข้อมูลจริงจากไฟล์ที่ผมวางไว้ ถ้าไฟล์ไหนอ่านไม่ได้หรือข้อมูลขาด ให้บอกผมว่าขาดอะไร อย่าเดามั่ว
+• สร้างเป็นไฟล์ HTML ไฟล์เดียวจบ (ใช้ Chart.js ผ่าน CDN) เปิดในเบราว์เซอร์ได้ทันที ฝังข้อมูลจริงจากไฟล์ลงไป
+• ปิดท้ายด้วยสรุป 3 ข้อ: (1) ภาพรวมเดือนนี้ ดี/แย่จุดไหน (2) จุดที่น่าเป็นห่วงที่สุด (3) สิ่งที่ต้องทำก่อน อย่างเดียวที่สำคัญที่สุด
+
+ตอบตรง ชี้ปัญหาก่อนแนะนำทาง`,
+  finishTitle:'🎉 Operations AI พร้อมทำงานแล้ว!',
+  finishText:'ตอนนี้คุณมี Claude ที่รู้จัก job flow, SLA, KPI และสไตล์ของคุณ พร้อม Job Tracker + Dashboard สรุปจากไฟล์จริง วางไฟล์ใหม่แล้วเดิน Prompt 6 ทุกสิ้นเดือนเพื่อสรุปไว ๆ — ลองใช้เอง 1 สัปดาห์ก่อนเอาเข้าทีมครับ'
+};
+
+/* ============ BRANCH MANAGER (ผู้จัดการสาขา) ============ */
+ROLES.branch = {
+  key:'branch', icon:'🏪', selLabel:'🏪 ผู้จัดการสาขา',
+  projName:'Branch Manager', roleTH:'ผู้จัดการสาขา', skillName:'branch',
+  skillDesc:'ผู้จัดการสาขา ส่วนตัวที่รู้จักสาขาของผมโดยเฉพาะ', domainTH:'บริหารสาขา',
+  folderHonda:'CSM-Branch/', folderSme:'Branch-Manager/', dataFileEx:'branch_2026-05.xlsx',
+  projUploadEx:'ยอดขายรายสาขา / รายงานศูนย์บริการ+อะไหล่ / สต็อกรถ / walk-in log / ตารางเวร',
+  refEx:'เป้าสาขารายเดือน, รายชื่อทีมงานสาขา, ราคารถ/ค่าบริการ, ผังเวร',
+  kicker:'6-Prompt Framework · Branch Manager',
+  titleHTML:'สร้าง <span class="g">AI ผู้จัดการสาขา</span><br>ส่วนตัวของคุณ ทีละ Prompt',
+  leadHonda:'คู่มือ <b>step-by-step</b> เดิน 6 Prompt เพื่อปั้น Claude ให้เป็น <b>ผู้จัดการสาขา AI</b> — ดูแลสาขาดีลเลอร์ Honda (CSM) แบบครบวงจร: ยอดขายรถ + ศูนย์บริการ/อะไหล่ + ปฏิบัติการหน้าร้าน + ทีมงาน',
+  leadSme:'คู่มือ <b>step-by-step</b> เดิน 6 Prompt เพื่อปั้น Claude ให้เป็น <b>ผู้จัดการสาขา AI</b> — คุมสาขาแบบเจ้าของหน้าร้าน: <b>ยอดขาย + ปฏิบัติการหน้าร้าน</b> (เปิด-ปิดร้าน, สต็อก, ทีมงาน, ลูกค้า) ให้สาขาทำกำไรและถึงเป้าทุกเดือน',
+  dutyTitle:'หน้าที่หลักของผู้จัดการสาขา',
+  dutyDescHonda:'ดูแลสาขา Honda (CSM) ทั้งสาขา — ยอดขายรถ, ศูนย์บริการ, อะไหล่, สต็อก, ทีมหน้าร้าน และ CSI ให้สาขาทำกำไรและตามเป้า',
+  dutyDescSme:'คุมสาขาแบบครบวงจร เน้น 2 ขา — ยอดขายหน้าร้าน และปฏิบัติการประจำวัน (สต็อก, เวร, ทีม, ความเรียบร้อยร้าน, ลูกค้า)',
+  duties:[
+    {t:'บริหารยอดขายของสาขา ให้ถึงเป้ารายวัน-รายเดือน'},
+    {t:'คุมปฏิบัติการหน้าร้าน — เปิด-ปิดร้าน, จัดเวร, ความเรียบร้อยโชว์รูม'},
+    {t:'ดูแล after-sales — ศูนย์บริการ + ขายอะไหล่', m:'honda'},
+    {t:'ดูแลงานบริการหลังการขาย + สินค้าต่อเนื่อง', m:'sme'},
+    {t:'บริหารสต็อก (รถ/สินค้า/อะไหล่) ไม่ให้ขาดหรือค้าง'},
+    {t:'นำทีมสาขา — โค้ช, KPI รายคน, ตารางกำลังคน'},
+    {t:'ดูแลประสบการณ์ลูกค้าหน้าร้าน + เคลม/ร้องเรียน'}
+  ],
+  kpis:[
+    {k:'ยอดขายสาขา vs เป้า', d:'% achievement ของยอดขายรวมสาขา', t:'≥ 100%'},
+    {k:'Walk-in Conversion', dh:'เดินเข้า → ปิดการขาย', ds:'ลูกค้าเข้าร้าน → ซื้อ', t:'≥ เกณฑ์สาขา'},
+    {k:'After-sales Revenue', dh:'รายได้ศูนย์บริการ + อะไหล่ vs เป้า', ds:'รายได้บริการ/สินค้าต่อเนื่อง vs เป้า', t:'≥ 100%'},
+    {k:'Gross Profit สาขา', d:'% กำไรขั้นต้นของสาขา', t:'ตามเป้า'},
+    {k:'Stock Aging / T&O', dh:'อายุสต็อกรถ + รอบหมุนสต็อก', ds:'อายุสต็อก + รอบหมุนสินค้า', t:'< เกณฑ์'},
+    {k:'CSI / ความพอใจลูกค้า', dh:'คะแนนความพอใจ (มาตรฐาน Honda)', ds:'คะแนนความพอใจลูกค้าหน้าร้าน', t:'≥ มาตรฐาน'},
+    {k:'Productivity ทีม', d:'ยอดขาย/หัว และงานต่อคน', t:'เพิ่มขึ้น YoY'},
+    {k:'ค่าใช้จ่ายสาขา', d:'OPEX สาขา vs งบ', t:'≤ งบ'}
+  ],
+  projExHonda:'เช่น "ผู้จัดการสาขา Honda CSM สาขา ..."',
+  projExSme:'เช่น "ผู้จัดการสาขาของร้าน/สาขา ..."',
+  p1LblHonda:'PROMPT 1 — Interview Branch · Honda CSM',
+  p1LblSme:'PROMPT 1 — Interview ผู้จัดการสาขา',
+  p1Honda:`ผมเป็นผู้จัดการสาขาของดีลเลอร์ Honda (CSM) ดูแลทั้งสาขา — ขายรถ, ศูนย์บริการ, อะไหล่ และทีมหน้าร้าน
+ผมกำลังจะให้คุณเป็นผู้จัดการสาขา (มือขวา) ส่วนตัวของผม ก่อนเริ่ม ช่วยสัมภาษณ์ผมเพื่อเก็บข้อมูลครบทุกอย่างที่ต้องใช้สร้าง SKILL.md
+
+กฎการถาม (สำคัญมาก):
+• ถามทีละคำถามเท่านั้น รอผมตอบก่อนแล้วค่อยถามต่อ
+• แต่ละตัวเลือกต้องอยู่คนละบรรทัด ห้ามอยู่บรรทัดเดียวกัน
+• รูปแบบที่ต้องใช้ทุกครั้ง:
+
+คำถามที่ X — [หัวข้อ]
+[คำถาม]
+
+A — [ตัวเลือก]
+B — [ตัวเลือก]
+C — [ตัวเลือก]
+D — [ตัวเลือก]
+0 — ยังไม่รู้ / ไม่แน่ใจ
+E — ไม่มีในนี้
+
+• ทุกคำถามต้องมีตัวเลือก 0 เสมอ
+• ถ้าผมตอบ 0 ให้จดเรื่องนั้นไว้เป็น gap ที่ต้องหาข้อมูลเพิ่ม
+• ถ้าผมตอบ E ให้เสนอตัวเลือกใหม่สำหรับคำถามนั้นเท่านั้น
+• ผมจะตอบแค่ตัวอักษรเดียว เช่น A หรือ 0 หรือ E
+
+ถามให้ครบทั้ง 4 หมวดนี้ (แต่ละหมวดถามทีละข้อ):
+
+หมวด 1 — บริบทสาขาปัจจุบัน: สาขาไหน/ขนาด, จำนวนทีม (เซล/ช่าง/ธุรการ), มีศูนย์บริการ+ขายอะไหล่ในสาขาไหม, ยอดขายเฉลี่ยต่อเดือน, walk-in เฉลี่ยต่อวัน, ระบบที่ใช้ (NIDS / Lark / Peak / อื่น)
+
+หมวด 2 — งานที่อยากให้ผู้จัดการสาขา AI ช่วยมากที่สุด: เช่น สรุปยอดสาขารายวัน/เดือน / จับ walk-in conversion / คุมสต็อกรถ-อะไหล่ / จัดเวร-กำลังคน / เทียบผลกับเป้า / ดู after-sales / โค้ชทีม
+
+หมวด 3 — สไตล์การตอบที่ชอบ: เช่น ชี้ตัวเลขก่อน / บอก next action รายวัน / มี checklist เปิด-ปิดร้าน / เตือนจุดที่หลุดเป้า
+
+หมวด 4 — KPI / ตัวเลขที่อยากเน้นดูเป็นพิเศษ: เช่น ยอดขายสาขา vs เป้า / walk-in conversion / รายได้ service+อะไหล่ / GP% สาขา / stock aging / CSI / ยอดต่อหัว
+
+พอตอบครบทุกหมวดแล้ว ก่อนจบให้สรุปทุกข้อที่ผมตอบ 0 พร้อมแบ่งเป็น 2 กลุ่ม:
+• "ต้องหาก่อนสร้างระบบ" — ถ้าไม่รู้จะทำ Dashboard ถูกต้องไม่ได้ พร้อมบอกว่าหาได้จากไหน
+• "รอได้" — ระบบทำงานได้แม้ยังไม่มีข้อมูลนี้ ค่อยเติมทีหลังได้
+
+เริ่มคำถามแรกได้เลยครับ`,
+  p1Sme:`ผมเป็นผู้จัดการสาขา ดูแลทั้งสาขา — เน้นยอดขายหน้าร้านและปฏิบัติการประจำวัน
+ผมกำลังจะให้คุณเป็นผู้จัดการสาขา (มือขวา) ส่วนตัวของผม ก่อนเริ่ม ช่วยสัมภาษณ์ผมเพื่อเก็บข้อมูลครบทุกอย่างที่ต้องใช้สร้าง SKILL.md
+
+กฎการถาม (สำคัญมาก):
+• ถามทีละคำถามเท่านั้น รอผมตอบก่อนแล้วค่อยถามต่อ
+• แต่ละตัวเลือกต้องอยู่คนละบรรทัด ห้ามอยู่บรรทัดเดียวกัน
+• รูปแบบที่ต้องใช้ทุกครั้ง:
+
+คำถามที่ X — [หัวข้อ]
+[คำถาม]
+
+A — [ตัวเลือก]
+B — [ตัวเลือก]
+C — [ตัวเลือก]
+D — [ตัวเลือก]
+0 — ยังไม่รู้ / ไม่แน่ใจ
+E — ไม่มีในนี้
+
+• ทุกคำถามต้องมีตัวเลือก 0 เสมอ
+• ถ้าผมตอบ 0 ให้จดเรื่องนั้นไว้เป็น gap ที่ต้องหาข้อมูลเพิ่ม
+• ถ้าผมตอบ E ให้เสนอตัวเลือกใหม่สำหรับคำถามนั้นเท่านั้น
+• ผมจะตอบแค่ตัวอักษรเดียว เช่น A หรือ 0 หรือ E
+
+ถามให้ครบทั้ง 4 หมวดนี้ (แต่ละหมวดถามทีละข้อ):
+
+หมวด 1 — บริบทสาขาปัจจุบัน: ขายอะไรเป็นหลัก, ขนาดทีม (ขาย/บริการ/ธุรการ), มีงานบริการหลังการขายไหม, ยอดขายเฉลี่ยต่อเดือน, ลูกค้าเข้าร้านเฉลี่ยต่อวัน, ระบบที่ใช้บันทึกขาย/สต็อก
+
+หมวด 2 — งานที่อยากให้ผู้จัดการสาขา AI ช่วยมากที่สุด: เช่น สรุปยอดรายวัน/เดือน / จับ conversion ลูกค้าเข้าร้าน / คุมสต็อก / จัดเวร-กำลังคน / เทียบกับเป้า / ดูบริการหลังการขาย / โค้ชทีม
+
+หมวด 3 — สไตล์การตอบที่ชอบ: เช่น ชี้ตัวเลขก่อน / บอก next action รายวัน / มี checklist เปิด-ปิดร้าน / เตือนจุดที่หลุดเป้า
+
+หมวด 4 — KPI / ตัวเลขที่อยากเน้นดูเป็นพิเศษ: เช่น ยอดขายสาขา vs เป้า / conversion / รายได้บริการหลังการขาย / GP% / stock aging / ความพอใจลูกค้า / ยอดต่อหัว
+
+พอตอบครบทุกหมวดแล้ว ก่อนจบให้สรุปทุกข้อที่ผมตอบ 0 พร้อมแบ่งเป็น 2 กลุ่ม:
+• "ต้องหาก่อนสร้างระบบ" — ถ้าไม่รู้จะทำ Dashboard ถูกต้องไม่ได้ พร้อมบอกว่าหาได้จากไหน
+• "รอได้" — ระบบทำงานได้แม้ยังไม่มีข้อมูลนี้ ค่อยเติมทีหลังได้
+
+เริ่มคำถามแรกได้เลยครับ`,
+  p5Title:'Prompt 5 — สร้าง Branch Tracker + Interactive Dashboard',
+  p5StepTitle:'สร้างระบบคุมสาขา (ยอดขาย + ปฏิบัติการ + Dashboard)',
+  p5StepDesc:'ได้ระบบที่บันทึกยอดขาย/บริการ/สต็อก/เวร และสรุปสุขภาพสาขาเป็น Dashboard + สีเตือนในตัว',
+  p5LblHonda:'PROMPT 5 — Branch System · Honda CSM',
+  p5LblSme:'PROMPT 5 — Branch System · ผู้จัดการสาขา',
+  p6LblHonda:'PROMPT 6 — Build Dashboard · Honda CSM',
+  p6LblSme:'PROMPT 6 — Build Dashboard · ผู้จัดการสาขา',
+  p6FilesHonda:'(ยอดขายรายสาขา, รายงานศูนย์บริการ+อะไหล่, สต็อกรถ, walk-in log, ตารางเวร)',
+  p6FilesSme:'(ยอดขายรายวัน, รายงานบริการหลังการขาย, สต็อก, log ลูกค้าเข้าร้าน, ตารางเวร)',
+  p6Honda:`ผมวางไฟล์ข้อมูลของสาขาทั้งหมดไว้ใน Project นี้แล้ว (ยอดขายรถ, รายงานศูนย์บริการ/อะไหล่, สต็อก, walk-in ฯลฯ) เดือนที่อยากสรุปคือ [ระบุเดือน]
+
+ช่วยอ่านไฟล์ทั้งหมด แล้วสร้าง Dashboard สรุปสุขภาพสาขาให้ผม ประกอบด้วย:
+
+1. การ์ด KPI หลัก: ยอดขายสาขา vs เป้า, ออกรถ, walk-in conversion, รายได้ service+อะไหล่, GP% สาขา
+2. กราฟ: ยอดขายรายวัน/รายเดือน (trend), สัดส่วนขายรถ vs after-sales, สต็อกตามอายุ
+3. ตาราง By ทีม: เป้า / ทำได้ / % / conversion (ทำสีเตือน < 80% แดง, ≥ 100% เขียว)
+4. ปฏิบัติการ: สต็อกค้าง/ขาด, จุดที่ conversion ตก, เวร/กำลังคนที่ขาด
+5. ลูกค้า: CSI/ร้องเรียน, เคลมค้าง
+
+ข้อกำหนด:
+• อ่านข้อมูลจริงจากไฟล์ที่ผมวางไว้ ถ้าไฟล์ไหนอ่านไม่ได้หรือข้อมูลขาด ให้บอกผมว่าขาดอะไร อย่าเดามั่ว
+• สร้างเป็นไฟล์ HTML ไฟล์เดียวจบ (ใช้ Chart.js ผ่าน CDN) เปิดในเบราว์เซอร์ได้ทันที ฝังข้อมูลจริงจากไฟล์ลงไป
+• ปิดท้ายด้วยสรุป 3 ข้อ: (1) ภาพรวมสาขาเดือนนี้ ดี/แย่จุดไหน (2) จุดที่น่าเป็นห่วงที่สุด (3) สิ่งที่ต้องทำก่อน อย่างเดียวที่สำคัญที่สุด
+
+ตอบตรง ชี้ปัญหาก่อนแนะนำทาง`,
+  p6Sme:`ผมวางไฟล์ข้อมูลของสาขาทั้งหมดไว้ใน Project นี้แล้ว (ยอดขาย, บริการหลังการขาย, สต็อก, log ลูกค้าเข้าร้าน ฯลฯ) เดือนที่อยากสรุปคือ [ระบุเดือน]
+
+ช่วยอ่านไฟล์ทั้งหมด แล้วสร้าง Dashboard สรุปสุขภาพสาขาให้ผม ประกอบด้วย:
+
+1. การ์ด KPI หลัก: ยอดขายสาขา vs เป้า, conversion ลูกค้าเข้าร้าน, รายได้บริการหลังการขาย, GP% สาขา
+2. กราฟ: ยอดขายรายวัน/รายเดือน (trend), สัดส่วนรายได้แต่ละขา, สต็อกตามอายุ
+3. ตาราง By ทีม: เป้า / ทำได้ / % / conversion (ทำสีเตือน < 80% แดง, ≥ 100% เขียว)
+4. ปฏิบัติการ: สต็อกค้าง/ขาด, จุดที่ conversion ตก, เวร/กำลังคนที่ขาด
+5. ลูกค้า: ความพอใจ/ร้องเรียนค้าง
+
+ข้อกำหนด:
+• อ่านข้อมูลจริงจากไฟล์ที่ผมวางไว้ ถ้าไฟล์ไหนอ่านไม่ได้หรือข้อมูลขาด ให้บอกผมว่าขาดอะไร อย่าเดามั่ว
+• สร้างเป็นไฟล์ HTML ไฟล์เดียวจบ (ใช้ Chart.js ผ่าน CDN) เปิดในเบราว์เซอร์ได้ทันที ฝังข้อมูลจริงจากไฟล์ลงไป
+• ปิดท้ายด้วยสรุป 3 ข้อ: (1) ภาพรวมสาขาเดือนนี้ ดี/แย่จุดไหน (2) จุดที่น่าเป็นห่วงที่สุด (3) สิ่งที่ต้องทำก่อน อย่างเดียวที่สำคัญที่สุด
+
+ตอบตรง ชี้ปัญหาก่อนแนะนำทาง`,
+  finishTitle:'🎉 ผู้จัดการสาขา AI พร้อมทำงานแล้ว!',
+  finishText:'ตอนนี้คุณมี Claude ที่รู้จักยอดขาย, ปฏิบัติการ, สต็อก, ทีม และ KPI ของสาขา พร้อมระบบคุมสาขา + Dashboard สรุปจากไฟล์จริง วางไฟล์ใหม่แล้วเดิน Prompt 6 ทุกสิ้นเดือนเพื่อสรุปไว ๆ — ลองใช้เอง 1 สัปดาห์ก่อนเอาเข้าทีมครับ'
+};
+
+/* ============ TART MOTORAD MANAGER (ผู้จัดการ Tart Motorad) ============ */
+ROLES.tart = {
+  key:'tart', icon:'🏍️', selLabel:'🏍️ ผู้จัดการ Tart Motorad',
+  projName:'Tart Motorad Manager', roleTH:'ผู้จัดการ Tart Motorad', skillName:'tartmotorad',
+  skillDesc:'ผู้จัดการศูนย์บริการ Tart Motorad (BMW/Harley/Bigbike) ส่วนตัวที่รู้จักศูนย์ของผมโดยเฉพาะ', domainTH:'บริหารศูนย์บริการบิ๊กไบค์',
+  folderHonda:'Tart-Motorad-Service/', folderSme:'Tart-Motorad-Service/', dataFileEx:'tart_service_2026-05.xlsx',
+  projUploadEx:'ใบงานซ่อม (job sheet) / รายได้ค่าแรง+อะไหล่ / สต็อก-สั่งอะไหล่นำเข้า / ประวัติรถลูกค้า / รายงานช่าง',
+  refEx:'อัตราค่าแรงมาตรฐาน, รายการอะไหล่+ราคา BMW/Harley, รายชื่อช่าง+ความเชี่ยวชาญ, เงื่อนไขรับประกัน',
+  kicker:'6-Prompt Framework · Tart Motorad Service',
+  titleHTML:'สร้าง <span class="g">AI ผู้จัดการ Tart Motorad</span><br>ศูนย์บริการบิ๊กไบค์ ทีละ Prompt',
+  leadHonda:'คู่มือ <b>step-by-step</b> เดิน 6 Prompt เพื่อปั้น Claude ให้เป็น <b>ผู้จัดการ Tart Motorad AI</b> — ศูนย์บริการซ่อมบิ๊กไบค์พรีเมียม <b>BMW Motorrad · Harley-Davidson · Bigbike</b>: คุมคิวงานซ่อม, รายได้ค่าแรง+อะไหล่, productivity ช่าง, สต็อก-สั่งอะไหล่นำเข้า และความพอใจลูกค้า',
+  leadSme:'คู่มือ <b>step-by-step</b> เดิน 6 Prompt เพื่อปั้น Claude ให้เป็น <b>ผู้จัดการ Tart Motorad AI</b> — ศูนย์บริการซ่อมบิ๊กไบค์พรีเมียม <b>BMW Motorrad · Harley-Davidson · Bigbike</b>: คุมคิวงานซ่อม, รายได้ค่าแรง+อะไหล่, productivity ช่าง, สต็อก-สั่งอะไหล่นำเข้า และประสบการณ์ลูกค้าระดับพรีเมียม',
+  dutyTitle:'หน้าที่หลักของผู้จัดการ Tart Motorad',
+  dutyDescHonda:'บริหารศูนย์บริการซ่อมบิ๊กไบค์ BMW / Harley / Bigbike — คุมคิวงาน, รายได้ค่าแรง+อะไหล่, ช่าง, สต็อกอะไหล่นำเข้า, การรับประกัน และประสบการณ์ลูกค้าพรีเมียม',
+  dutyDescSme:'บริหารศูนย์บริการซ่อมบิ๊กไบค์พรีเมียม BMW / Harley / Bigbike — คุมคิวงาน, รายได้ค่าแรง+อะไหล่, ช่าง, สต็อกอะไหล่นำเข้า, การรับประกัน และความพอใจลูกค้า',
+  duties:[
+    {t:'บริหารคิวงานซ่อม + นัดหมายลูกค้าบิ๊กไบค์'},
+    {t:'คุมรายได้ค่าแรง + อะไหล่ (Labor + Parts) ให้ถึงเป้า'},
+    {t:'ดูแล productivity / utilization ช่าง + คุณภาพงาน (ลด rework)'},
+    {t:'บริหารสต็อก + การสั่งอะไหล่นำเข้า BMW/Harley (lead time นาน)'},
+    {t:'งานรับประกัน/เคลม + ประวัติการซ่อมรถลูกค้า'},
+    {t:'ดูแลประสบการณ์ลูกค้าระดับพรีเมียม + CSI/รีวิว'}
+  ],
+  kpis:[
+    {k:'รายได้ศูนย์ vs เป้า', d:'ค่าแรง + อะไหล่ vs เป้ารายเดือน', t:'≥ 100%'},
+    {k:'จำนวนงานซ่อม/เดือน', d:'throughput ใบงานที่ส่งมอบ', t:'ตามเป้า'},
+    {k:'Average Repair Value', d:'มูลค่าเฉลี่ยต่อใบงาน (ค่าแรง+อะไหล่)', t:'ตามเป้า'},
+    {k:'Technician Utilization', d:'ชม.ขายได้ ÷ ชม.พร้อมทำงาน', t:'≥ เกณฑ์'},
+    {k:'Lead Time / คิวรอ', d:'วันเฉลี่ย รับรถ → ส่งมอบ', t:'< เกณฑ์'},
+    {k:'Parts Availability', d:'% อะไหล่พร้อม (ไม่ต้องรอนำเข้า)', t:'≥ เกณฑ์'},
+    {k:'Rework / ซ่อมซ้ำ', d:'% งานที่ต้องกลับมาแก้', t:'< เกณฑ์'},
+    {k:'CSI / Repeat', d:'ความพอใจ + ลูกค้ากลับมาใช้บริการ', t:'≥ มาตรฐาน'}
+  ],
+  projExHonda:'เช่น "ผู้จัดการศูนย์บริการ Tart Motorad"',
+  projExSme:'เช่น "ผู้จัดการศูนย์บริการ Tart Motorad"',
+  p1LblHonda:'PROMPT 1 — Interview Tart Motorad Service',
+  p1LblSme:'PROMPT 1 — Interview Tart Motorad Service',
+  p1Honda:`ผมเป็นผู้จัดการศูนย์บริการ Tart Motorad — ศูนย์ซ่อมบิ๊กไบค์พรีเมียม BMW Motorrad, Harley-Davidson และ Bigbike
+ผมกำลังจะให้คุณเป็นผู้จัดการศูนย์บริการส่วนตัวของผม ก่อนเริ่ม ช่วยสัมภาษณ์ผมเพื่อเก็บข้อมูลครบทุกอย่างที่ต้องใช้สร้าง SKILL.md
+
+กฎการถาม (สำคัญมาก):
+• ถามทีละคำถามเท่านั้น รอผมตอบก่อนแล้วค่อยถามต่อ
+• แต่ละตัวเลือกต้องอยู่คนละบรรทัด ห้ามอยู่บรรทัดเดียวกัน
+• รูปแบบที่ต้องใช้ทุกครั้ง:
+
+คำถามที่ X — [หัวข้อ]
+[คำถาม]
+
+A — [ตัวเลือก]
+B — [ตัวเลือก]
+C — [ตัวเลือก]
+D — [ตัวเลือก]
+0 — ยังไม่รู้ / ไม่แน่ใจ
+E — ไม่มีในนี้
+
+• ทุกคำถามต้องมีตัวเลือก 0 เสมอ
+• ถ้าผมตอบ 0 ให้จดเรื่องนั้นไว้เป็น gap ที่ต้องหาข้อมูลเพิ่ม
+• ถ้าผมตอบ E ให้เสนอตัวเลือกใหม่สำหรับคำถามนั้นเท่านั้น
+• ผมจะตอบแค่ตัวอักษรเดียว เช่น A หรือ 0 หรือ E
+
+ถามให้ครบทั้ง 4 หมวดนี้ (แต่ละหมวดถามทีละข้อ):
+
+หมวด 1 — บริบทศูนย์บริการปัจจุบัน: จำนวนช่าง + ความเชี่ยวชาญ (BMW/Harley/ทั่วไป), จำนวนช่องซ่อม (bay), งานซ่อมเฉลี่ยต่อวัน/เดือน, ค่าแรงเฉลี่ยต่อใบงาน, รับงานแบบนัดหมาย vs walk-in, ระบบที่ใช้เปิดใบงาน/สต็อกอะไหล่
+
+หมวด 2 — งานที่อยากให้ผู้จัดการศูนย์ AI ช่วยมากที่สุด: เช่น สรุปรายได้ค่าแรง+อะไหล่ / คุมคิวงาน-lead time / productivity ช่าง / คุมสต็อก-สั่งอะไหล่นำเข้า / ติดตามงานรับประกัน / วิเคราะห์งานซ่อมซ้ำ / ดูประวัติรถลูกค้า
+
+หมวด 3 — สไตล์การตอบที่ชอบ: เช่น ชี้ตัวเลขก่อน / เตือนงานค้าง-เกิน SLA / บอก next action รายวัน / มี checklist
+
+หมวด 4 — KPI / ตัวเลขที่อยากเน้นดูเป็นพิเศษ: เช่น รายได้ศูนย์ vs เป้า / ATV / technician utilization / lead time / parts availability / rework / CSI
+
+พอตอบครบทุกหมวดแล้ว ก่อนจบให้สรุปทุกข้อที่ผมตอบ 0 พร้อมแบ่งเป็น 2 กลุ่ม:
+• "ต้องหาก่อนสร้างระบบ" — ถ้าไม่รู้จะทำ Dashboard ถูกต้องไม่ได้ พร้อมบอกว่าหาได้จากไหน
+• "รอได้" — ระบบทำงานได้แม้ยังไม่มีข้อมูลนี้ ค่อยเติมทีหลังได้
+
+เริ่มคำถามแรกได้เลยครับ`,
+  p1Sme:`ผมเป็นผู้จัดการศูนย์บริการ Tart Motorad — ศูนย์ซ่อมบิ๊กไบค์พรีเมียม BMW Motorrad, Harley-Davidson และ Bigbike
+ผมกำลังจะให้คุณเป็นผู้จัดการศูนย์บริการส่วนตัวของผม ก่อนเริ่ม ช่วยสัมภาษณ์ผมเพื่อเก็บข้อมูลครบทุกอย่างที่ต้องใช้สร้าง SKILL.md
+
+กฎการถาม (สำคัญมาก):
+• ถามทีละคำถามเท่านั้น รอผมตอบก่อนแล้วค่อยถามต่อ
+• แต่ละตัวเลือกต้องอยู่คนละบรรทัด ห้ามอยู่บรรทัดเดียวกัน
+• รูปแบบที่ต้องใช้ทุกครั้ง:
+
+คำถามที่ X — [หัวข้อ]
+[คำถาม]
+
+A — [ตัวเลือก]
+B — [ตัวเลือก]
+C — [ตัวเลือก]
+D — [ตัวเลือก]
+0 — ยังไม่รู้ / ไม่แน่ใจ
+E — ไม่มีในนี้
+
+• ทุกคำถามต้องมีตัวเลือก 0 เสมอ
+• ถ้าผมตอบ 0 ให้จดเรื่องนั้นไว้เป็น gap ที่ต้องหาข้อมูลเพิ่ม
+• ถ้าผมตอบ E ให้เสนอตัวเลือกใหม่สำหรับคำถามนั้นเท่านั้น
+• ผมจะตอบแค่ตัวอักษรเดียว เช่น A หรือ 0 หรือ E
+
+ถามให้ครบทั้ง 4 หมวดนี้ (แต่ละหมวดถามทีละข้อ):
+
+หมวด 1 — บริบทศูนย์บริการปัจจุบัน: จำนวนช่าง + ความเชี่ยวชาญ (BMW/Harley/ทั่วไป), จำนวนช่องซ่อม (bay), งานซ่อมเฉลี่ยต่อวัน/เดือน, ค่าแรงเฉลี่ยต่อใบงาน, รับงานแบบนัดหมาย vs walk-in, ระบบที่ใช้เปิดใบงาน/สต็อกอะไหล่
+
+หมวด 2 — งานที่อยากให้ผู้จัดการศูนย์ AI ช่วยมากที่สุด: เช่น สรุปรายได้ค่าแรง+อะไหล่ / คุมคิวงาน-lead time / productivity ช่าง / คุมสต็อก-สั่งอะไหล่นำเข้า / ติดตามงานรับประกัน / วิเคราะห์งานซ่อมซ้ำ / ดูประวัติรถลูกค้า
+
+หมวด 3 — สไตล์การตอบที่ชอบ: เช่น ชี้ตัวเลขก่อน / เตือนงานค้าง-เกิน SLA / บอก next action รายวัน / มี checklist
+
+หมวด 4 — KPI / ตัวเลขที่อยากเน้นดูเป็นพิเศษ: เช่น รายได้ศูนย์ vs เป้า / ATV / technician utilization / lead time / parts availability / rework / CSI
+
+พอตอบครบทุกหมวดแล้ว ก่อนจบให้สรุปทุกข้อที่ผมตอบ 0 พร้อมแบ่งเป็น 2 กลุ่ม:
+• "ต้องหาก่อนสร้างระบบ" — ถ้าไม่รู้จะทำ Dashboard ถูกต้องไม่ได้ พร้อมบอกว่าหาได้จากไหน
+• "รอได้" — ระบบทำงานได้แม้ยังไม่มีข้อมูลนี้ ค่อยเติมทีหลังได้
+
+เริ่มคำถามแรกได้เลยครับ`,
+  p5Title:'Prompt 5 — สร้าง Service Job Tracker + Dashboard',
+  p5StepTitle:'สร้างระบบคุมศูนย์บริการ (ใบงานซ่อม + ช่าง + อะไหล่ + Dashboard)',
+  p5StepDesc:'ได้ระบบที่บันทึกใบงานซ่อม/ค่าแรง/อะไหล่/ช่าง และสรุปรายได้-คิวงาน-productivity เป็น Dashboard + สีเตือนในตัว',
+  p5LblHonda:'PROMPT 5 — Service System · Tart Motorad',
+  p5LblSme:'PROMPT 5 — Service System · Tart Motorad',
+  p6LblHonda:'PROMPT 6 — Build Dashboard · Tart Motorad',
+  p6LblSme:'PROMPT 6 — Build Dashboard · Tart Motorad',
+  p6FilesHonda:'(ใบงานซ่อม/รายได้ค่าแรง+อะไหล่, รายงานช่าง, สต็อก-สั่งอะไหล่, ประวัติรถลูกค้า)',
+  p6FilesSme:'(ใบงานซ่อม/รายได้ค่าแรง+อะไหล่, รายงานช่าง, สต็อก-สั่งอะไหล่, ประวัติรถลูกค้า)',
+  p6Honda:`ผมวางไฟล์ข้อมูลของศูนย์บริการ Tart Motorad ทั้งหมดไว้ใน Project นี้แล้ว (ใบงานซ่อม, รายได้ค่าแรง+อะไหล่, รายงานช่าง, สต็อกอะไหล่ ฯลฯ) เดือนที่อยากสรุปคือ [ระบุเดือน]
+
+ช่วยอ่านไฟล์ทั้งหมด แล้วสร้าง Dashboard สรุปสุขภาพศูนย์บริการให้ผม ประกอบด้วย:
+
+1. การ์ด KPI หลัก: รายได้ศูนย์ vs เป้า, จำนวนงานซ่อม, Average Repair Value, Technician Utilization, Lead Time เฉลี่ย
+2. กราฟ: รายได้รายเดือน (ค่าแรง vs อะไหล่), จำนวนงานตามยี่ห้อ (BMW/Harley/Bigbike), คิวงานตามสถานะ
+3. ตาราง By ช่าง: ชั่วโมงทำงาน / utilization / รายได้ / rework (ทำสีเตือน utilization ต่ำ = แดง)
+4. คิวงาน / Lead time: งานค้าง, งานรออะไหล่นำเข้า, งานเกิน SLA
+5. อะไหล่: parts availability, อะไหล่ที่ต้องสั่งเพิ่ม / ค้างนาน
+
+ข้อกำหนด:
+• อ่านข้อมูลจริงจากไฟล์ที่ผมวางไว้ ถ้าไฟล์ไหนอ่านไม่ได้หรือข้อมูลขาด ให้บอกผมว่าขาดอะไร อย่าเดามั่ว
+• สร้างเป็นไฟล์ HTML ไฟล์เดียวจบ (ใช้ Chart.js ผ่าน CDN) เปิดในเบราว์เซอร์ได้ทันที ฝังข้อมูลจริงจากไฟล์ลงไป
+• ปิดท้ายด้วยสรุป 3 ข้อ: (1) ภาพรวมเดือนนี้ ดี/แย่จุดไหน (2) จุดที่น่าเป็นห่วงที่สุด (3) สิ่งที่ต้องทำก่อน อย่างเดียวที่สำคัญที่สุด
+
+ตอบตรง ชี้ปัญหาก่อนแนะนำทาง`,
+  p6Sme:`ผมวางไฟล์ข้อมูลของศูนย์บริการ Tart Motorad ทั้งหมดไว้ใน Project นี้แล้ว (ใบงานซ่อม, รายได้ค่าแรง+อะไหล่, รายงานช่าง, สต็อกอะไหล่ ฯลฯ) เดือนที่อยากสรุปคือ [ระบุเดือน]
+
+ช่วยอ่านไฟล์ทั้งหมด แล้วสร้าง Dashboard สรุปสุขภาพศูนย์บริการให้ผม ประกอบด้วย:
+
+1. การ์ด KPI หลัก: รายได้ศูนย์ vs เป้า, จำนวนงานซ่อม, Average Repair Value, Technician Utilization, Lead Time เฉลี่ย
+2. กราฟ: รายได้รายเดือน (ค่าแรง vs อะไหล่), จำนวนงานตามยี่ห้อ (BMW/Harley/Bigbike), คิวงานตามสถานะ
+3. ตาราง By ช่าง: ชั่วโมงทำงาน / utilization / รายได้ / rework (ทำสีเตือน utilization ต่ำ = แดง)
+4. คิวงาน / Lead time: งานค้าง, งานรออะไหล่นำเข้า, งานเกิน SLA
+5. อะไหล่: parts availability, อะไหล่ที่ต้องสั่งเพิ่ม / ค้างนาน
+
+ข้อกำหนด:
+• อ่านข้อมูลจริงจากไฟล์ที่ผมวางไว้ ถ้าไฟล์ไหนอ่านไม่ได้หรือข้อมูลขาด ให้บอกผมว่าขาดอะไร อย่าเดามั่ว
+• สร้างเป็นไฟล์ HTML ไฟล์เดียวจบ (ใช้ Chart.js ผ่าน CDN) เปิดในเบราว์เซอร์ได้ทันที ฝังข้อมูลจริงจากไฟล์ลงไป
+• ปิดท้ายด้วยสรุป 3 ข้อ: (1) ภาพรวมเดือนนี้ ดี/แย่จุดไหน (2) จุดที่น่าเป็นห่วงที่สุด (3) สิ่งที่ต้องทำก่อน อย่างเดียวที่สำคัญที่สุด
+
+ตอบตรง ชี้ปัญหาก่อนแนะนำทาง`,
+  finishTitle:'🎉 Tart Motorad Service AI พร้อมทำงานแล้ว!',
+  finishText:'ตอนนี้คุณมี Claude ที่รู้จักคิวงานซ่อม, รายได้ค่าแรง+อะไหล่, ช่าง, สต็อกอะไหล่นำเข้า และ KPI ของศูนย์ Tart Motorad พร้อมระบบ Job Tracker + Dashboard สรุปจากไฟล์จริง วางไฟล์ใหม่แล้วเดิน Prompt 6 ทุกสิ้นเดือนเพื่อสรุปไว ๆ — ลองใช้เอง 1 สัปดาห์ก่อนเอาเข้าทีมครับ'
+};
+
+/* ============ GO MOTO MANAGER (ผู้จัดการ Go Moto) ============ */
+ROLES.gomoto = {
+  key:'gomoto', icon:'🎓', selLabel:'🎓 ผู้จัดการ Go Moto',
+  projName:'Go Moto Manager', roleTH:'ผู้จัดการ Go Moto', skillName:'gomoto',
+  skillDesc:'ผู้จัดการศูนย์บริการ Go Moto (ในมหาวิทยาลัย) ส่วนตัวที่รู้จักศูนย์ของผมโดยเฉพาะ', domainTH:'บริหารศูนย์บริการในมหาวิทยาลัย',
+  folderHonda:'Go-Moto-Service/', folderSme:'Go-Moto-Service/', dataFileEx:'gomoto_service_2026-05.xlsx',
+  projUploadEx:'ใบงานซ่อม (job sheet) / รายได้ค่าแรง+อะไหล่ / สต็อกอะไหล่หมุนเร็ว / ฐานลูกค้านักศึกษา / รายงานช่าง',
+  refEx:'อัตราค่าแรง+แพ็กเกจ, รายการอะไหล่หมุนเร็ว+ราคา, รายชื่อช่าง, ปฏิทินมหาวิทยาลัย (เปิด-ปิดเทอม)',
+  kicker:'6-Prompt Framework · Go Moto Service',
+  titleHTML:'สร้าง <span class="g">AI ผู้จัดการ Go Moto</span><br>ศูนย์ซ่อมในมหาวิทยาลัย ทีละ Prompt',
+  leadHonda:'คู่มือ <b>step-by-step</b> เดิน 6 Prompt เพื่อปั้น Claude ให้เป็น <b>ผู้จัดการ Go Moto AI</b> — ศูนย์บริการซ่อมรถจักรยานยนต์<b>ในมหาวิทยาลัย</b>: เน้นปริมาณงาน, ซ่อมไว-สะดวก, ลูกค้านักศึกษา/บุคลากร, คุมคิวงาน-รายได้-ช่าง-สต็อกอะไหล่หมุนเร็ว',
+  leadSme:'คู่มือ <b>step-by-step</b> เดิน 6 Prompt เพื่อปั้น Claude ให้เป็น <b>ผู้จัดการ Go Moto AI</b> — ศูนย์บริการซ่อมรถจักรยานยนต์<b>ในมหาวิทยาลัย</b>: เน้น throughput สูง, turnaround ไว, ฐานลูกค้านักศึกษา/บุคลากร, คุมคิวงาน-รายได้-ช่าง-สต็อกอะไหล่หมุนเร็ว',
+  dutyTitle:'หน้าที่หลักของผู้จัดการ Go Moto',
+  dutyDescHonda:'บริหารศูนย์ซ่อมมอเตอร์ไซค์ในมหาวิทยาลัย — เน้น throughput สูง, turnaround ไว, ฐานลูกค้านักศึกษา/บุคลากร, สต็อกอะไหล่หมุนเร็ว',
+  dutyDescSme:'บริหารศูนย์ซ่อมมอเตอร์ไซค์ในมหาวิทยาลัย — เน้นปริมาณงาน, ซ่อมไว-สะดวก, ราคาเข้าถึงง่าย, ฐานลูกค้านักศึกษา/บุคลากร',
+  duties:[
+    {t:'บริหารคิวงานซ่อมปริมาณสูง (เน้นไว-สะดวก)'},
+    {t:'คุมรายได้ค่าแรง + อะไหล่ทั่วไป (commuter) ให้ถึงเป้า'},
+    {t:'ดูแล productivity ช่าง + เวลารอ/turnaround ของลูกค้า'},
+    {t:'บริหารสต็อกอะไหล่หมุนเร็ว (ยาง/โซ่/น้ำมัน/ผ้าเบรก)'},
+    {t:'ดูแลฐานลูกค้านักศึกษา/บุคลากร (สมาชิก/ซ่อมซ้ำ)'},
+    {t:'โปรโมชัน/แพ็กเกจในมหาวิทยาลัย (เปลี่ยนถ่าย/เช็คระยะ) + ปรับตามปฏิทินเทอม'}
+  ],
+  kpis:[
+    {k:'รายได้ศูนย์ vs เป้า', d:'ค่าแรง + อะไหล่ vs เป้ารายเดือน', t:'≥ 100%'},
+    {k:'จำนวนงานซ่อม/วัน', d:'throughput งานที่ส่งมอบ', t:'ตามเป้า'},
+    {k:'Average Ticket', d:'มูลค่าเฉลี่ยต่อใบงาน (ต่ำ-ปริมาณมาก)', t:'ตามเป้า'},
+    {k:'Turnaround / เวลารอ', d:'เวลาเฉลี่ย รับ → ส่งมอบ', t:'< เกณฑ์'},
+    {k:'Technician Productivity', d:'จำนวนงาน/ช่าง/วัน', t:'≥ เกณฑ์'},
+    {k:'Repeat / สมาชิก', d:'นักศึกษา/บุคลากรกลับมาใช้ซ้ำ', t:'เพิ่มขึ้น'},
+    {k:'Parts Availability', d:'% อะไหล่หมุนเร็วพร้อมใช้', t:'≥ เกณฑ์'},
+    {k:'CSI / รีวิว', d:'ความพอใจลูกค้า', t:'≥ เกณฑ์'}
+  ],
+  projExHonda:'เช่น "ผู้จัดการศูนย์บริการ Go Moto"',
+  projExSme:'เช่น "ผู้จัดการศูนย์บริการ Go Moto"',
+  p1LblHonda:'PROMPT 1 — Interview Go Moto Service',
+  p1LblSme:'PROMPT 1 — Interview Go Moto Service',
+  p1Honda:`ผมเป็นผู้จัดการศูนย์บริการ Go Moto — ศูนย์ซ่อมรถจักรยานยนต์ในมหาวิทยาลัย เน้นปริมาณงานและความเร็ว ลูกค้าหลักเป็นนักศึกษา/บุคลากร
+ผมกำลังจะให้คุณเป็นผู้จัดการศูนย์บริการส่วนตัวของผม ก่อนเริ่ม ช่วยสัมภาษณ์ผมเพื่อเก็บข้อมูลครบทุกอย่างที่ต้องใช้สร้าง SKILL.md
+
+กฎการถาม (สำคัญมาก):
+• ถามทีละคำถามเท่านั้น รอผมตอบก่อนแล้วค่อยถามต่อ
+• แต่ละตัวเลือกต้องอยู่คนละบรรทัด ห้ามอยู่บรรทัดเดียวกัน
+• รูปแบบที่ต้องใช้ทุกครั้ง:
+
+คำถามที่ X — [หัวข้อ]
+[คำถาม]
+
+A — [ตัวเลือก]
+B — [ตัวเลือก]
+C — [ตัวเลือก]
+D — [ตัวเลือก]
+0 — ยังไม่รู้ / ไม่แน่ใจ
+E — ไม่มีในนี้
+
+• ทุกคำถามต้องมีตัวเลือก 0 เสมอ
+• ถ้าผมตอบ 0 ให้จดเรื่องนั้นไว้เป็น gap ที่ต้องหาข้อมูลเพิ่ม
+• ถ้าผมตอบ E ให้เสนอตัวเลือกใหม่สำหรับคำถามนั้นเท่านั้น
+• ผมจะตอบแค่ตัวอักษรเดียว เช่น A หรือ 0 หรือ E
+
+ถามให้ครบทั้ง 4 หมวดนี้ (แต่ละหมวดถามทีละข้อ):
+
+หมวด 1 — บริบทศูนย์บริการปัจจุบัน: จำนวนช่าง, จำนวนช่องซ่อม (bay), งานซ่อมเฉลี่ยต่อวัน, ค่าแรง/บิลเฉลี่ย, ประเภทงานหลัก (เปลี่ยนถ่าย/ยาง/โซ่/เบรก/เครื่อง), รับงานแบบไหน (รอรับ/นัด), ผลกระทบจากปฏิทินเทอม (เปิด-ปิดเทอม), ระบบที่ใช้เปิดใบงาน/สต็อก
+
+หมวด 2 — งานที่อยากให้ผู้จัดการศูนย์ AI ช่วยมากที่สุด: เช่น สรุปรายได้รายวัน/เดือน / คุมคิวงาน-เวลารอ / productivity ช่าง / คุมสต็อกอะไหล่หมุนเร็ว / ทำแพ็กเกจ-สมาชิกนักศึกษา / forecast ตามช่วงเทอม
+
+หมวด 3 — สไตล์การตอบที่ชอบ: เช่น ชี้ตัวเลขก่อน / บอก next action รายวัน / เตือนของขาด-คิวยาว / มี checklist
+
+หมวด 4 — KPI / ตัวเลขที่อยากเน้นดูเป็นพิเศษ: เช่น รายได้ศูนย์ vs เป้า / จำนวนงาน/วัน / average ticket / turnaround / technician productivity / repeat-สมาชิก / parts availability
+
+พอตอบครบทุกหมวดแล้ว ก่อนจบให้สรุปทุกข้อที่ผมตอบ 0 พร้อมแบ่งเป็น 2 กลุ่ม:
+• "ต้องหาก่อนสร้างระบบ" — ถ้าไม่รู้จะทำ Dashboard ถูกต้องไม่ได้ พร้อมบอกว่าหาได้จากไหน
+• "รอได้" — ระบบทำงานได้แม้ยังไม่มีข้อมูลนี้ ค่อยเติมทีหลังได้
+
+เริ่มคำถามแรกได้เลยครับ`,
+  p1Sme:`ผมเป็นผู้จัดการศูนย์บริการ Go Moto — ศูนย์ซ่อมรถจักรยานยนต์ในมหาวิทยาลัย เน้นปริมาณงานและความเร็ว ลูกค้าหลักเป็นนักศึกษา/บุคลากร
+ผมกำลังจะให้คุณเป็นผู้จัดการศูนย์บริการส่วนตัวของผม ก่อนเริ่ม ช่วยสัมภาษณ์ผมเพื่อเก็บข้อมูลครบทุกอย่างที่ต้องใช้สร้าง SKILL.md
+
+กฎการถาม (สำคัญมาก):
+• ถามทีละคำถามเท่านั้น รอผมตอบก่อนแล้วค่อยถามต่อ
+• แต่ละตัวเลือกต้องอยู่คนละบรรทัด ห้ามอยู่บรรทัดเดียวกัน
+• รูปแบบที่ต้องใช้ทุกครั้ง:
+
+คำถามที่ X — [หัวข้อ]
+[คำถาม]
+
+A — [ตัวเลือก]
+B — [ตัวเลือก]
+C — [ตัวเลือก]
+D — [ตัวเลือก]
+0 — ยังไม่รู้ / ไม่แน่ใจ
+E — ไม่มีในนี้
+
+• ทุกคำถามต้องมีตัวเลือก 0 เสมอ
+• ถ้าผมตอบ 0 ให้จดเรื่องนั้นไว้เป็น gap ที่ต้องหาข้อมูลเพิ่ม
+• ถ้าผมตอบ E ให้เสนอตัวเลือกใหม่สำหรับคำถามนั้นเท่านั้น
+• ผมจะตอบแค่ตัวอักษรเดียว เช่น A หรือ 0 หรือ E
+
+ถามให้ครบทั้ง 4 หมวดนี้ (แต่ละหมวดถามทีละข้อ):
+
+หมวด 1 — บริบทศูนย์บริการปัจจุบัน: จำนวนช่าง, จำนวนช่องซ่อม (bay), งานซ่อมเฉลี่ยต่อวัน, ค่าแรง/บิลเฉลี่ย, ประเภทงานหลัก (เปลี่ยนถ่าย/ยาง/โซ่/เบรก/เครื่อง), รับงานแบบไหน (รอรับ/นัด), ผลกระทบจากปฏิทินเทอม (เปิด-ปิดเทอม), ระบบที่ใช้เปิดใบงาน/สต็อก
+
+หมวด 2 — งานที่อยากให้ผู้จัดการศูนย์ AI ช่วยมากที่สุด: เช่น สรุปรายได้รายวัน/เดือน / คุมคิวงาน-เวลารอ / productivity ช่าง / คุมสต็อกอะไหล่หมุนเร็ว / ทำแพ็กเกจ-สมาชิกนักศึกษา / forecast ตามช่วงเทอม
+
+หมวด 3 — สไตล์การตอบที่ชอบ: เช่น ชี้ตัวเลขก่อน / บอก next action รายวัน / เตือนของขาด-คิวยาว / มี checklist
+
+หมวด 4 — KPI / ตัวเลขที่อยากเน้นดูเป็นพิเศษ: เช่น รายได้ศูนย์ vs เป้า / จำนวนงาน/วัน / average ticket / turnaround / technician productivity / repeat-สมาชิก / parts availability
+
+พอตอบครบทุกหมวดแล้ว ก่อนจบให้สรุปทุกข้อที่ผมตอบ 0 พร้อมแบ่งเป็น 2 กลุ่ม:
+• "ต้องหาก่อนสร้างระบบ" — ถ้าไม่รู้จะทำ Dashboard ถูกต้องไม่ได้ พร้อมบอกว่าหาได้จากไหน
+• "รอได้" — ระบบทำงานได้แม้ยังไม่มีข้อมูลนี้ ค่อยเติมทีหลังได้
+
+เริ่มคำถามแรกได้เลยครับ`,
+  p5Title:'Prompt 5 — สร้าง Service Job Tracker + Dashboard',
+  p5StepTitle:'สร้างระบบคุมศูนย์บริการ (ใบงานซ่อม + ช่าง + อะไหล่ + Dashboard)',
+  p5StepDesc:'ได้ระบบที่บันทึกใบงานซ่อม/ค่าแรง/อะไหล่/ช่าง และสรุปรายได้-throughput-เวลารอ เป็น Dashboard + สีเตือนในตัว',
+  p5LblHonda:'PROMPT 5 — Service System · Go Moto',
+  p5LblSme:'PROMPT 5 — Service System · Go Moto',
+  p6LblHonda:'PROMPT 6 — Build Dashboard · Go Moto',
+  p6LblSme:'PROMPT 6 — Build Dashboard · Go Moto',
+  p6FilesHonda:'(ใบงานซ่อม/รายได้ค่าแรง+อะไหล่, รายงานช่าง, สต็อกอะไหล่, ฐานลูกค้านักศึกษา)',
+  p6FilesSme:'(ใบงานซ่อม/รายได้ค่าแรง+อะไหล่, รายงานช่าง, สต็อกอะไหล่, ฐานลูกค้านักศึกษา)',
+  p6Honda:`ผมวางไฟล์ข้อมูลของศูนย์บริการ Go Moto ทั้งหมดไว้ใน Project นี้แล้ว (ใบงานซ่อม, รายได้ค่าแรง+อะไหล่, รายงานช่าง, สต็อกอะไหล่ ฯลฯ) เดือนที่อยากสรุปคือ [ระบุเดือน]
+
+ช่วยอ่านไฟล์ทั้งหมด แล้วสร้าง Dashboard สรุปสุขภาพศูนย์บริการให้ผม ประกอบด้วย:
+
+1. การ์ด KPI หลัก: รายได้ศูนย์ vs เป้า, จำนวนงานซ่อม/วัน, Average Ticket, Turnaround เฉลี่ย, Technician Productivity
+2. กราฟ: รายได้รายวัน/รายเดือน (trend), จำนวนงานตามประเภท (เปลี่ยนถ่าย/ยาง/โซ่/เบรก), ปริมาณงานตามช่วงเทอม
+3. ตาราง By ช่าง: จำนวนงาน / รายได้ / เวลาเฉลี่ยต่องาน (ทำสีเตือน productivity ต่ำ = แดง)
+4. คิวงาน: คิวยาว/เวลารอเกินเกณฑ์, ช่วงเวลาที่งานหนา
+5. อะไหล่: parts availability หมุนเร็ว, อะไหล่ที่ใกล้หมด/ต้องเติม
+
+ข้อกำหนด:
+• อ่านข้อมูลจริงจากไฟล์ที่ผมวางไว้ ถ้าไฟล์ไหนอ่านไม่ได้หรือข้อมูลขาด ให้บอกผมว่าขาดอะไร อย่าเดามั่ว
+• สร้างเป็นไฟล์ HTML ไฟล์เดียวจบ (ใช้ Chart.js ผ่าน CDN) เปิดในเบราว์เซอร์ได้ทันที ฝังข้อมูลจริงจากไฟล์ลงไป
+• ปิดท้ายด้วยสรุป 3 ข้อ: (1) ภาพรวมเดือนนี้ ดี/แย่จุดไหน (2) จุดที่น่าเป็นห่วงที่สุด (3) สิ่งที่ต้องทำก่อน อย่างเดียวที่สำคัญที่สุด
+
+ตอบตรง ชี้ปัญหาก่อนแนะนำทาง`,
+  p6Sme:`ผมวางไฟล์ข้อมูลของศูนย์บริการ Go Moto ทั้งหมดไว้ใน Project นี้แล้ว (ใบงานซ่อม, รายได้ค่าแรง+อะไหล่, รายงานช่าง, สต็อกอะไหล่ ฯลฯ) เดือนที่อยากสรุปคือ [ระบุเดือน]
+
+ช่วยอ่านไฟล์ทั้งหมด แล้วสร้าง Dashboard สรุปสุขภาพศูนย์บริการให้ผม ประกอบด้วย:
+
+1. การ์ด KPI หลัก: รายได้ศูนย์ vs เป้า, จำนวนงานซ่อม/วัน, Average Ticket, Turnaround เฉลี่ย, Technician Productivity
+2. กราฟ: รายได้รายวัน/รายเดือน (trend), จำนวนงานตามประเภท (เปลี่ยนถ่าย/ยาง/โซ่/เบรก), ปริมาณงานตามช่วงเทอม
+3. ตาราง By ช่าง: จำนวนงาน / รายได้ / เวลาเฉลี่ยต่องาน (ทำสีเตือน productivity ต่ำ = แดง)
+4. คิวงาน: คิวยาว/เวลารอเกินเกณฑ์, ช่วงเวลาที่งานหนา
+5. อะไหล่: parts availability หมุนเร็ว, อะไหล่ที่ใกล้หมด/ต้องเติม
+
+ข้อกำหนด:
+• อ่านข้อมูลจริงจากไฟล์ที่ผมวางไว้ ถ้าไฟล์ไหนอ่านไม่ได้หรือข้อมูลขาด ให้บอกผมว่าขาดอะไร อย่าเดามั่ว
+• สร้างเป็นไฟล์ HTML ไฟล์เดียวจบ (ใช้ Chart.js ผ่าน CDN) เปิดในเบราว์เซอร์ได้ทันที ฝังข้อมูลจริงจากไฟล์ลงไป
+• ปิดท้ายด้วยสรุป 3 ข้อ: (1) ภาพรวมเดือนนี้ ดี/แย่จุดไหน (2) จุดที่น่าเป็นห่วงที่สุด (3) สิ่งที่ต้องทำก่อน อย่างเดียวที่สำคัญที่สุด
+
+ตอบตรง ชี้ปัญหาก่อนแนะนำทาง`,
+  finishTitle:'🎉 Go Moto Service AI พร้อมทำงานแล้ว!',
+  finishText:'ตอนนี้คุณมี Claude ที่รู้จักคิวงานซ่อม, รายได้ค่าแรง+อะไหล่, ช่าง, สต็อกอะไหล่หมุนเร็ว และ KPI ของศูนย์ Go Moto พร้อมระบบ Job Tracker + Dashboard สรุปจากไฟล์จริง วางไฟล์ใหม่แล้วเดิน Prompt 6 ทุกสิ้นเดือนเพื่อสรุปไว ๆ — ลองใช้เอง 1 สัปดาห์ก่อนเอาเข้าทีมครับ'
+};
+
+/* =====================================================
+   RENDER ENGINE + EVENT WIRING
+   ===================================================== */
+var ROLE_ORDER = ['branch','tart','gomoto','sales','marketing','finance','hr','ops'];
+var STORE_MODE='smelab_v2_mode', STORE_ROLE='smelab_v2_role', STORE_STEPS='smelab_v2_steps', STORE_FMT='smelab_v2_fmt';
+function safeGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function safeSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function $(s){return document.querySelector(s)}
+function $all(s){return document.querySelectorAll(s)}
+function setText(sel,t){var n=$(sel); if(n) n.textContent=t;}
+function setHTML(sel,h){var n=$(sel); if(n) n.innerHTML=h;}
+function setAllText(sel,t){$all(sel).forEach(function(n){n.textContent=t;});}
+function setAllHTML(sel,h){$all(sel).forEach(function(n){n.innerHTML=h;});}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+
+var curMode='sme', curRole='sales', curFmt='html', doneSet={};
+try{ doneSet=JSON.parse(safeGet(STORE_STEPS)||'{}')||{}; }catch(e){ doneSet={}; }
+var toast=$('#toast'), toastT, celebrated=false;
+var steps=$all('.step[data-id]'), total=steps.length;
+
+function showToast(msg){
+  if(!toast) return;
+  toast.textContent=msg; toast.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(function(){toast.classList.remove('show')},1700);
+}
+function roleSet(){ if(!doneSet[curRole]) doneSet[curRole]={}; return doneSet[curRole]; }
+function persist(){ safeSet(STORE_STEPS, JSON.stringify(doneSet)); }
+
+function updateProgress(){
+  var cur=roleSet(), c=0; for(var k in cur){ if(cur[k]) c++; }
+  var pct=total?Math.round(c/total*100):0;
+  var pf=$('#progFill'), pp=$('#progPct');
+  if(pf) pf.style.width=pct+'%';
+  if(pp) pp.textContent=pct+'%';
+  $all('.phase').forEach(function(ph){
+    var sps=ph.querySelectorAll('.step[data-id]');
+    if(!sps.length) return;
+    var all=true;
+    sps.forEach(function(s){ if(!cur[s.dataset.id]) all=false; });
+    var link=$('.sidenav a[data-phase="'+ph.id+'"]');
+    if(link) link.classList.toggle('done', all);
+  });
+  if(pct===100 && !celebrated){ celebrated=true; showToast('เดินครบ 6 Prompt แล้ว — AI พร้อมลุย 🎉'); }
+  if(pct<100) celebrated=false;
+}
+function applyChecks(){
+  var cur=roleSet();
+  steps.forEach(function(s){ s.classList.toggle('checked', !!cur[s.dataset.id]); });
+  updateProgress();
+}
+function mark(step,now){
+  var cur=roleSet();
+  step.classList.toggle('checked', now);
+  cur[step.dataset.id]=now; persist(); updateProgress();
+}
+
+function buildKpiTable(r, mode){
+  var html='<tr><th>KPI</th><th>นิยาม</th><th>Target</th></tr>';
+  r.kpis.forEach(function(x){
+    var d = mode==='honda' ? (x.dh||x.d) : (x.ds||x.d);
+    html+='<tr><td>'+x.k+'</td><td>'+d+'</td><td><b>'+x.t+'</b></td></tr>';
+  });
+  return html;
+}
+function buildDuties(r, mode){
+  var html='';
+  r.duties.forEach(function(x){
+    if(x.m && x.m!==mode) return;
+    html+='<div class="duty"><span>•</span>'+x.t+'</div>';
+  });
+  return html;
+}
+
+function render(){
+  var r=ROLES[curRole], mode=curMode, honda=(mode==='honda');
+  document.body.classList.remove('mode-honda','mode-sme');
+  document.body.classList.add(honda?'mode-honda':'mode-sme');
+
+  setText('#brandIcon', r.icon);
+  setText('#brandSub', '· '+r.projName+' · AI Setup Lab');
+
+  setText('#heroKicker', r.kicker);
+  setHTML('#heroTitle', r.titleHTML);
+  setHTML('#heroLead', (honda?r.leadHonda:r.leadSme)+' กดสลับ 🏍/🏢 หรือเปลี่ยน <b>บทบาท</b> ด้านบนได้เลย แล้วเนื้อหา Prompt จะเปลี่ยนตาม — กดติ๊กกลางการ์ดเพื่อเก็บความคืบหน้า (แยกตามบทบาท)');
+
+  setText('#dutyTitle', r.dutyTitle);
+  setText('#dutyDesc', honda?r.dutyDescHonda:r.dutyDescSme);
+  setHTML('#duties', buildDuties(r, mode));
+  setHTML('#kpiTable', buildKpiTable(r, mode));
+
+  /* prompts */
+  setText('code[data-prompt="p1"]', honda?r.p1Honda:r.p1Sme);
+  setText('code[data-prompt="p2"]', buildP2(r));
+  setText('code[data-prompt="p3"]', buildP3(r));
+  setText('code[data-prompt="p4"]', buildP4(r));
+  setText('code[data-prompt="p5"]', buildP5(r, mode, curFmt));
+  setText('code[data-prompt="p61"]', buildP61(r, mode));
+  setText('code[data-prompt="p6"]', honda?r.p6Honda:r.p6Sme);
+
+  /* labels */
+  setText('[data-lbl="p1"]', honda?r.p1LblHonda:r.p1LblSme);
+  setText('[data-lbl="p5"]', 'PROMPT 5 — Build System ('+(FMT_NAME[curFmt]||'HTML')+') · '+(honda?'Honda CSM':'SME ทั่วไป'));
+  setText('[data-lbl="p6"]', honda?r.p6LblHonda:r.p6LblSme);
+
+  /* inline tokens */
+  setAllText('[data-skill]', r.skillName);
+  setAllText('[data-skillcmd]', '/'+r.skillName);
+  setAllText('[data-proj]', r.projName);
+  setAllHTML('[data-projex]', honda?r.projExHonda:r.projExSme);
+  setAllText('[data-docx]', r.projName+' Roadmap.docx');
+
+  setText('#p5Title', r.p5Title);
+  setText('#p5StepTitle', r.p5StepTitle);
+  setHTML('#p5StepDesc', 'ได้ระบบที่มี Settings / ตารางบันทึกข้อมูลหลัก / Dashboard สรุป + สีเตือน — <b>เลือกฟอร์แมตด้านล่าง</b> (Excel · Google Sheets · HTML) แล้วเนื้อหา Prompt จะปรับให้ <b>(HTML = บันทึกข้อมูลได้ในตัว)</b>');
+
+  setAllText('[data-folder]', honda?r.folderHonda:r.folderSme);
+  setAllHTML('[data-datafiles]', honda?r.p6FilesHonda:r.p6FilesSme);
+  setAllText('[data-datafile]', r.dataFileEx);
+
+  setText('#finishTitle', r.finishTitle);
+  setText('#finishText', r.finishText);
+
+  applyChecks();
+}
+
+/* ---- init selector ---- */
+(function initSelect(){
+  var sel=$('#roleSelect');
+  if(!sel) return;
+  ROLE_ORDER.forEach(function(key){
+    var o=document.createElement('option');
+    o.value=key; o.textContent=ROLES[key].selLabel;
+    sel.appendChild(o);
+  });
+  sel.addEventListener('change',function(){
+    curRole=sel.value; safeSet(STORE_ROLE,curRole); render();
+    var top=$('#p0'); if(top) top.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+})();
+
+/* ---- mode toggle ---- */
+$all('#modeToggle button').forEach(function(b){
+  b.addEventListener('click',function(){
+    curMode = b.dataset.mode==='sme' ? 'sme' : 'honda';
+    $all('#modeToggle button').forEach(function(x){ x.classList.toggle('active', x.dataset.mode===curMode); });
+    safeSet(STORE_MODE, curMode); render();
+  });
+});
+
+/* ---- Prompt 5 format selector (Excel / Google Sheets / HTML) ---- */
+function applyFmtButtons(){
+  $all('#p5fmt button').forEach(function(x){ x.classList.toggle('active', x.dataset.fmt===curFmt); });
+}
+$all('#p5fmt button').forEach(function(b){
+  b.addEventListener('click',function(){
+    curFmt = (b.dataset.fmt==='xlsx'||b.dataset.fmt==='sheet') ? b.dataset.fmt : 'html';
+    applyFmtButtons(); safeSet(STORE_FMT, curFmt); render();
+  });
+});
+
+/* ---- checkbox click ---- */
+steps.forEach(function(step){
+  var chk=step.querySelector('.chk');
+  if(!chk) return;
+  chk.addEventListener('click',function(e){
+    e.stopPropagation();
+    var now=!step.classList.contains('checked');
+    mark(step,now);
+    if(now) showToast('บันทึกความคืบหน้าแล้ว ✓');
+  });
+});
+
+/* ---- copy buttons (auto-mark step done) ---- */
+function fallbackCopy(t){
+  var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{document.execCommand('copy')}catch(e){}
+  document.body.removeChild(ta);
+}
+$all('.copy-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var pre=btn.closest('.cmd').querySelector('pre code');
+    var txt=pre.innerText;
+    var done=function(){
+      var orig=btn.innerHTML;
+      btn.classList.add('copied');
+      btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>คัดลอกแล้ว';
+      setTimeout(function(){ btn.classList.remove('copied'); btn.innerHTML=orig; },1600);
+      var step=btn.closest('.step[data-id]');
+      if(step && !step.classList.contains('checked')){ mark(step,true); showToast('คัดลอก + ติ๊กขั้นตอนนี้แล้ว ✓'); }
+    };
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(done).catch(function(){ fallbackCopy(txt); done(); });
+    } else { fallbackCopy(txt); done(); }
+  });
+});
+
+/* ---- scrollspy ---- */
+(function(){
+  var phases=$all('.phase'), links=$all('.sidenav a');
+  function spy(){
+    var pos=window.scrollY+140, cur=null;
+    phases.forEach(function(p){ if(p.offsetTop<=pos) cur=p.id; });
+    links.forEach(function(l){ l.classList.toggle('active', l.dataset.phase===cur); });
+  }
+  window.addEventListener('scroll',spy,{passive:true}); spy();
+})();
+
+/* ---- boot ---- */
+curMode = 'sme'; /* v3: SME-only, Honda CSM mode removed */
+curRole = ROLES[safeGet(STORE_ROLE)] ? safeGet(STORE_ROLE) : 'branch';
+var savedFmt=safeGet(STORE_FMT); curFmt = (savedFmt==='xlsx'||savedFmt==='sheet') ? savedFmt : 'html';
+$all('#modeToggle button').forEach(function(x){ x.classList.toggle('active', x.dataset.mode===curMode); });
+var selEl=$('#roleSelect'); if(selEl) selEl.value=curRole;
+applyFmtButtons();
+render();
+
+})();
+
+
+
+</script>
+</body>
+</html>
